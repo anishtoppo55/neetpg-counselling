@@ -1,0 +1,44 @@
+# Which seat categories a candidate of each category can be allotted (All India / central counselling).
+#
+# STATUS: confirmed: false  ->  drafted from the bulletins below and checked against the allotment data,
+#         but NOT yet reviewed by a person. Set `confirmed: true` per year after review.
+#
+# Sources (page numbers are the printed page numbers of the MCC PG Information Bulletin of that year):
+#   * §3.1 Reservation Policy (p.13): SC 15 %, ST 7.5 %, OBC-NCL 27 %, EWS 10 %; PwD 5 % horizontal reservation.
+#   * FAQ Q.18 (2025 p.51, 2024 p.48): "Seat can also be up-graded in the same college by change of category
+#     (i.e. ST / SC / OBC to UR or PwD to non-PwD seat)"  -> reserved-category and PwD candidates are also
+#     considered for UR (Open) and non-PwD seats on merit.
+#   * Conversion algorithm (§3.3, p.13–14; FAQ Q.15/17): in Round 3 vacant seats are converted
+#     ST-PwD->ST, SC-PwD->SC, UR-PwD->UR, OBC-PwD->OBC, ST->SC, SC->UR, EWS->UR (and NRI/minority->UR).
+#     The converted seat is then printed with its new category, so the conversion does not widen which
+#     printed seat categories a candidate can hold – it only changes how many seats each category has.
+#
+# Evidence in the 2024 and 2025 allotment data (all quotas, all rounds): every allotment matches these rules,
+# e.g. 2025: ST candidates held 2,889 ST and 43 Open seats and no SC/OBC/EWS seats; ST-PwD candidates held
+# ST-PwD, ST and Open-PwD seats. EWS-PwD / OBC-PwD / SC-PwD / ST-PwD candidates appear on Open-PwD seats.
+#
+# Quota-specific eligibility (NRI, minority, AFMS, DU/IP/AMU/BHU internal) is NOT covered here.
+
+years:
+  2025:
+    source: 2025/rules/mcc_information_bulletin.pdf
+    source_title: Revised PG Information Bulletin 2025 dated 27.11.2025
+    confirmed: false
+    rules: &rules
+      - {candidate: GEN,     seats: [OPEN],                          clause: '§3.1 Reservation Policy (p.13)'}
+      - {candidate: GEN_PWD, seats: [OPEN, OPEN_PWD],                clause: '§3.1 Reservation Policy, PwD 5% horizontal (p.13); FAQ Q.18'}
+      - {candidate: OBC,     seats: [OBC, OPEN],                     clause: '§3.1 Reservation Policy (p.13); FAQ Q.18 (OBC to UR)'}
+      - {candidate: OBC_PWD, seats: [OBC, OBC_PWD, OPEN, OPEN_PWD],  clause: '§3.1 Reservation Policy (p.13); FAQ Q.18 (OBC to UR, PwD to non-PwD)'}
+      - {candidate: SC,      seats: [SC, OPEN],                      clause: '§3.1 Reservation Policy (p.13); FAQ Q.18 (SC to UR)'}
+      - {candidate: SC_PWD,  seats: [SC, SC_PWD, OPEN, OPEN_PWD],    clause: '§3.1 Reservation Policy (p.13); FAQ Q.18 (SC to UR, PwD to non-PwD)'}
+      - {candidate: ST,      seats: [ST, OPEN],                      clause: '§3.1 Reservation Policy (p.13); FAQ Q.18 (ST to UR)'}
+      - {candidate: ST_PWD,  seats: [ST, ST_PWD, OPEN, OPEN_PWD],    clause: '§3.1 Reservation Policy (p.13); FAQ Q.18 (ST to UR, PwD to non-PwD)'}
+      - {candidate: EWS,     seats: [EWS, OPEN],                     clause: '§3.1 Reservation Policy, EWS 10% (p.13)',
+         notes: 'Q.18 does not list EWS explicitly; EWS candidates hold Open seats in both years (2,426 in 2025).'}
+      - {candidate: EWS_PWD, seats: [EWS, EWS_PWD, OPEN, OPEN_PWD],  clause: '§3.1 Reservation Policy (p.13)',
+         notes: 'EWS-PwD candidates hold EWS, EWS-PwD and Open-PwD seats in the data.'}
+  2024:
+    source: 2024/rules/mcc_information_bulletin.pdf
+    source_title: Revised PG Information Bulletin 2024
+    confirmed: false
+    rules: *rules        # identical wording in §3.1, conversion algorithm and FAQ (Q.18 on p.48)

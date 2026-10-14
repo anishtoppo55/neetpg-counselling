@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body { @apply bg-page text-ink antialiased; }
+  /* visible focus for keyboard users everywhere */
+  :focus-visible { @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-white rounded-md; }
+}
+
+@layer components {
+  .card { @apply rounded-card bg-white shadow-card border border-slate-200/70; }
+  .card-pad { @apply p-4 sm:p-5; }
+  .btn { @apply inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition
+          disabled:opacity-50 disabled:pointer-events-none; }
+  .btn-ghost { @apply btn border-slate-200 bg-white text-ink-soft hover:bg-slate-50; }
+  .btn-primary { @apply btn border-brand-600 bg-brand-600 text-white hover:bg-brand-700; }
+  .field { @apply w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-ink
+           placeholder:text-ink-faint focus:border-brand-400; }
+  .label { @apply mb-1 block text-xs font-medium text-ink-soft; }
+  .chip { @apply inline-flex items-center gap-1 rounded-pill px-2 py-0.5 text-xs font-medium; }
+  .th { @apply whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-faint; }
+  .td { @apply px-4 py-3 text-sm text-ink align-top; }
+  .nav-item { @apply flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-ink-soft
+               hover:bg-slate-100 hover:text-ink; }
+  .nav-item-active { @apply bg-brand-50 text-brand-700 hover:bg-brand-50 hover:text-brand-700; }
+}
+
+/* print: hide chrome, keep the table readable */
+@media print {
+  .no-print { display: none !important; }
+  .card { box-shadow: none; border-color: #cbd5e1; }
+}

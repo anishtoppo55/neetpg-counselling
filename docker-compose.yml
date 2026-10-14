@@ -1,0 +1,99 @@
+# NEET PG Counselling Platform – local development stack (Phase 1).
+# All ports are bound to 127.0.0.1: the stack has no authentication and must not be exposed on a network.
+#
+#   docker compose up -d db                                   # start PostgreSQL
+#   docker compose run --rm pipeline migrate                  # create / upgrade the schema
+#   docker compose run --rm pipeline import --year 2025 --year 2024
+#   docker compose run --rm pipeline status
+#   docker compose run --rm --entrypoint pytest pipeline      # run the pipeline tests
+#   docker compose up -d api                                  # predictor API on http://127.0.0.1:8000/docs
+#   docker compose exec api pytest -q                         # run the API tests
+#   docker compose up -d web                                  # dashboard on http://127.0.0.1:3000
+
+name: neetpg
+
+services:
+  db:
+    image: postgres:16.4-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-neetpg}
+      POSTGRES_USER: ${POSTGRES_USER:-neetpg}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-neetpg} -d ${POSTGRES_DB:-neetpg}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  pipeline:
+    build: ./pipeline
+    image: neetpg-pipeline:dev
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-neetpg}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-neetpg}
+      RAW_DIR: /data/raw
+      CACHE_DIR: /data/cache
+      REPORT_DIR: /data/reports
+    volumes:
+      - ./data/raw:/data/raw:ro          # official PDFs (read-only)
+      - ./data/cache:/data/cache         # parsed-table cache (safe to delete)
+      - ./data/reports:/data/reports     # validation reports written by each import
+      - ./pipeline:/app                  # live code during development
+    profiles: ["tools"]                  # not started by a plain `docker compose up`
+
+  api:
+    build: ./api
+    image: neetpg-api:dev
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-neetpg}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-neetpg}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"   # no authentication in Phase 1 – keep it local
+    volumes:
+      - ./api:/srv                         # live code during development
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build: ./web
+    image: neetpg-web:dev
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      API_BASE_INTERNAL: http://api:8000              # server components talk to the API inside the network
+      NEXT_PUBLIC_API_BASE: ${PUBLIC_API_BASE:-http://127.0.0.1:8000}
+      NEXT_TELEMETRY_DISABLED: "1"
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"            # no authentication in Phase 1 – keep it local
+    volumes:
+      - ./web:/app                                    # live code during development
+      - web_node_modules:/app/node_modules            # keep the image's dependencies
+      - web_next_cache:/app/.next
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/api/ping').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+volumes:
+  pgdata:
+  web_node_modules:
+  web_next_cache:

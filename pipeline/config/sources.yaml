@@ -1,0 +1,47 @@
+# Which documents make up each counselling year, and how to read them.
+#
+# To add a year:
+#   1. download its PDFs (scripts/fetch_mcc_documents.py) into data/raw/<year>/...
+#   2. check the column layout of each result PDF (see docs/data_model.md, "Adding a year")
+#      and reuse or add an entry in config/layouts.yaml
+#   3. add the year below and run:  docker compose run --rm pipeline import --year <year>
+#
+# Round result files: the round's OWN allotment is read from columns prefixed `cur_`; columns `p1_`, `p2_`
+# hold the candidate's seat in earlier rounds as reprinted in that PDF. `reporting_from` says which later
+# PDF column gives the joining status (Reported / Not Reported / Seat Surrendered) of this round's seats.
+
+years:
+  2025:
+    label: NEET PG 2025
+    rounds:
+      - {code: R1, seq: 1, kind: regular, name: Round 1, file: 2025/allotments/round1.pdf, layout: single_round}
+      - {code: R2, seq: 2, kind: regular, name: Round 2, file: 2025/allotments/round2.pdf, layout: r2_2025}
+      - {code: R3, seq: 3, kind: regular, name: Round 3, file: 2025/allotments/round3.pdf, layout: r3_2025}
+      - {code: STRAY, seq: 4, kind: stray, name: Stray Vacancy Round, file: 2025/allotments/stray.pdf, layout: single_round}
+    reporting_from:
+      R1: {round: R2, column: p1_remarks}
+      R2: {round: R3, column: p2_remarks}
+    seat_matrix:          # Round-1 seat matrices
+      - {matrix: aiq, file: 2025/seat_matrix/aiq_round1.pdf}
+      - {matrix: central_internal, file: 2025/seat_matrix/central_internal_round1.pdf}
+      - {matrix: dnb, file: 2025/seat_matrix/dnb_round1.pdf}
+      - {matrix: deemed, file: 2025/seat_matrix/deemed_round1.pdf}
+    course_legend: 2025/allotments/round3.pdf
+
+  2024:
+    label: NEET PG 2024
+    rounds:
+      - {code: R1, seq: 1, kind: regular, name: Round 1, file: 2024/allotments/round1.pdf, layout: single_round}
+      - {code: R2, seq: 2, kind: regular, name: Round 2, file: 2024/allotments/round2.pdf, layout: r2_2024}
+      - {code: R3, seq: 3, kind: regular, name: Round 3, file: 2024/allotments/round3.pdf, layout: r3_2024}
+      - {code: STRAY, seq: 4, kind: stray, name: Stray Vacancy Round, file: 2024/allotments/stray.pdf, layout: single_round}
+      - {code: SPECIAL_STRAY, seq: 5, kind: stray, name: Special Stray Vacancy Round, file: 2024/allotments/special_stray.pdf, layout: single_round}
+    reporting_from:
+      R1: {round: R2, column: p1_remarks}
+      R2: {round: R3, column: p2_remarks}
+    seat_matrix:
+      - {matrix: aiq, file: 2024/seat_matrix/aiq_round1.pdf}
+      - {matrix: central_internal, file: 2024/seat_matrix/central_internal_round1.pdf}
+      - {matrix: dnb, file: 2024/seat_matrix/dnb_round1.pdf}
+      - {matrix: deemed, file: 2024/seat_matrix/deemed_round1.pdf}
+    course_legend: 2024/allotments/round3.pdf

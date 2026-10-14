@@ -1,0 +1,88 @@
+# Column layouts of the MCC allotment result PDFs, measured from word x-coordinates (pdftotext -bbox).
+# `columns`: [name, x where the column starts]. `anchor`: x-range of the rank column; a number there starts a record.
+# Columns: sno, rank, cur_* = this round's allotment, p1_*/p2_* = seat in round 1/2 as reprinted in this PDF.
+
+single_round:          # Round 1, stray and special stray rounds (2024, 2025) – A4 portrait
+  anchor: [45, 90]
+  columns:
+    - [sno, 0]
+    - [rank, 45]
+    - [cur_quota, 90]
+    - [cur_institute, 180]
+    - [cur_course, 540]
+    - [cur_allotted_cat, 655]
+    - [cur_candidate_cat, 695]
+    - [cur_remarks, 762]
+
+r2_2025:               # Round 2, 2025 – no serial number column
+  anchor: [0, 45]
+  columns:
+    - [rank, 0]
+    - [p1_quota, 45]
+    - [p1_institute, 99]
+    - [p1_course, 212]
+    - [p1_remarks, 300]
+    - [cur_quota, 355]
+    - [cur_institute, 418]
+    - [cur_course, 549]
+    - [cur_allotted_cat, 645]
+    - [cur_candidate_cat, 690]
+    - [cur_option, 745]
+    - [cur_remarks, 775]
+
+r2_2024:               # Round 2, 2024 – with serial number column
+  anchor: [36, 74]
+  columns:
+    - [sno, 0]
+    - [rank, 36]
+    - [p1_quota, 74]
+    - [p1_institute, 132]
+    - [p1_course, 225]
+    - [p1_remarks, 318]
+    - [cur_quota, 379]
+    - [cur_institute, 436]
+    - [cur_course, 531]
+    - [cur_allotted_cat, 623]
+    - [cur_candidate_cat, 678]
+    - [cur_option, 738]
+    - [cur_remarks, 776]
+
+r3_2025:               # Round 3, 2025 – A3 landscape
+  anchor: [0, 45]
+  columns:
+    - [rank, 0]
+    - [p1_quota, 50]
+    - [p1_institute, 75]
+    - [p1_course, 199]
+    - [p1_remarks, 238]
+    - [p2_quota, 300]
+    - [p2_institute, 355]
+    - [p2_course, 480]
+    - [p2_remarks, 518]
+    - [cur_quota, 575]
+    - [cur_institute, 620]
+    - [cur_course, 864]
+    - [cur_allotted_cat, 995]
+    - [cur_candidate_cat, 1035]
+    - [cur_option, 1085]
+    - [cur_remarks, 1125]
+
+r3_2024:               # Round 3, 2024 – A3 (rotated portrait page, landscape coordinates)
+  anchor: [0, 42]
+  columns:
+    - [rank, 0]
+    - [p1_quota, 42]
+    - [p1_institute, 91]
+    - [p1_course, 220]
+    - [p1_remarks, 319]
+    - [p2_quota, 386]
+    - [p2_institute, 418]
+    - [p2_course, 539]
+    - [p2_remarks, 638]
+    - [cur_quota, 700]
+    - [cur_institute, 737]
+    - [cur_course, 869]
+    - [cur_allotted_cat, 972]
+    - [cur_candidate_cat, 1027]
+    - [cur_option, 1085]
+    - [cur_remarks, 1125]

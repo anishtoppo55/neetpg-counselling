@@ -1,0 +1,28 @@
+# Production image for the dashboard (used by Render; the local dev stack uses ./Dockerfile).
+# Multi-stage: install -> build -> copy only the standalone server (~200 MB instead of ~1.4 GB).
+
+FROM node:20.18-slim AS deps
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+COPY package.json package-lock.json* ./
+RUN npm install --no-audit --no-fund
+
+FROM node:20.18-slim AS build
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+# Pages are force-dynamic, so no API call happens during the build.
+RUN npm run build
+
+FROM node:20.18-slim AS run
+WORKDIR /app
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    HOSTNAME=0.0.0.0
+# `output: 'standalone'` in next.config.mjs produces server.js plus a minimal node_modules
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/.next/static ./.next/static
+USER node
+# Render injects PORT; Next's standalone server reads it.
+CMD ["sh", "-c", "exec node server.js -p ${PORT:-3000}"]

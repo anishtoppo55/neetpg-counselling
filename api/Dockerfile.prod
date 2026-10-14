@@ -1,0 +1,20 @@
+# Production image for the predictor API (used by Render; the local dev stack uses ./Dockerfile).
+FROM python:3.12.7-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/srv \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /srv
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app ./app
+
+RUN useradd --create-home --uid 1000 api
+USER api
+
+# Render injects PORT; default keeps `docker run` usable without it.
+# One worker: the free instance has limited memory, and the API is read-only and I/O bound.
+CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1 --proxy-headers --forwarded-allow-ips='*'"]

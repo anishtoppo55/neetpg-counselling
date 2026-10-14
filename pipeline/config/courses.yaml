@@ -1,0 +1,506 @@
+# Course catalogue: one entry per MCC programme code.
+# Generated from the 'Program Abbrevations' legend of 2025/allotments/round3.pdf (100 programmes), then reviewed.
+# branch / branch_group / degree come from the rules in neetpg_pipeline/vocab.py and can be corrected here.
+# If a new year prints a programme differently, add the printed name under `aliases`.
+# The import fails on any course name not found here, so nothing is silently mis-classified.
+courses:
+- code: DANS
+  name: (NBEMS) ANAESTHESIOLOGY
+  branch: Anaesthesiology
+  branch_group: Clinical
+  degree: DNB
+- code: DANT
+  name: (NBEMS) Anatomy
+  branch: Anatomy
+  branch_group: Pre-clinical
+  degree: DNB
+- code: DBIO
+  name: (NBEMS) BIOCHEMISTRY
+  branch: Biochemistry
+  branch_group: Pre-clinical
+  degree: DNB
+- code: DCOM
+  name: (NBEMS) COMMUNITY MEDICINE
+  branch: Community Medicine
+  branch_group: Para-clinical
+  degree: DNB
+- code: DCTVS
+  name: (NBEMS) Cardio Vascular and Thoracic Surgery (Direct 6 Years Course)
+  branch: CTVS
+  branch_group: Clinical
+  degree: DNB
+- code: NDDVL
+  name: (NBEMS) DERMATOLOGY and VENEREOLOGY and LEPROSY
+  branch: Dermatology
+  branch_group: Clinical
+  degree: DNB
+- code: DEMM
+  name: (NBEMS) Emergency Medicine
+  branch: Emergency Medicine
+  branch_group: Clinical
+  degree: DNB
+- code: DFLM
+  name: (NBEMS) FAMILY MEDICINE
+  branch: Family Medicine
+  branch_group: Clinical
+  degree: DNB
+- code: DFRM
+  name: (NBEMS) FORENSIC MEDICINE
+  branch: Forensic Medicine
+  branch_group: Para-clinical
+  degree: DNB
+- code: DMED
+  name: (NBEMS) GENERAL MEDICINE
+  branch: General Medicine
+  branch_group: Clinical
+  degree: DNB
+- code: DSUR
+  name: (NBEMS) GENERAL SURGERY
+  branch: General Surgery
+  branch_group: Clinical
+  degree: DNB
+- code: DGRM
+  name: (NBEMS) Geriatric Medicine
+  branch: Geriatrics
+  branch_group: Clinical
+  degree: DNB
+- code: DHAD
+  name: (NBEMS) Hospital Administration
+  branch: Hospital Administration
+  branch_group: Para-clinical
+  degree: DNB
+- code: DIBT
+  name: (NBEMS) IMMUNO-HAEMATOLOGY AND BLOOD TRANSFUSION
+  branch: Transfusion Medicine
+  branch_group: Para-clinical
+  degree: DNB
+- code: DMIC
+  name: (NBEMS) MICROBIOLOGY
+  branch: Microbiology
+  branch_group: Para-clinical
+  degree: DNB
+- code: DNUM
+  name: (NBEMS) NUCLEAR MEDICINE
+  branch: Nuclear Medicine
+  branch_group: Clinical
+  degree: DNB
+- code: DNRS
+  name: (NBEMS) Neuro Surgery (Direct 6 Years Course)
+  branch: Neurosurgery
+  branch_group: Clinical
+  degree: DNB
+- code: DOPH
+  name: (NBEMS) OPHTHALMOLOGY
+  branch: Ophthalmology
+  branch_group: Clinical
+  degree: DNB
+- code: NDORT
+  name: (NBEMS) ORTHOPAEDICS
+  branch: Orthopaedics
+  branch_group: Clinical
+  degree: DNB
+- code: DOBG
+  name: (NBEMS) Obstetrics and Gynaecology
+  branch: Obstetrics & Gynaecology
+  branch_group: Clinical
+  degree: DNB
+- code: DENT
+  name: (NBEMS) Otorhinolaryngology (E.N.T.)
+  branch: ENT
+  branch_group: Clinical
+  degree: DNB
+- code: DPED
+  name: (NBEMS) PAEDIATRICS
+  branch: Paediatrics
+  branch_group: Clinical
+  degree: DNB
+- code: DPTH
+  name: (NBEMS) PATHOLOGY
+  branch: Pathology
+  branch_group: Para-clinical
+  degree: DNB
+- code: DPHA
+  name: (NBEMS) PHARMACOLOGY
+  branch: Pharmacology
+  branch_group: Para-clinical
+  degree: DNB
+- code: DPMRN
+  name: (NBEMS) PHYSICAL MED. and REHABILITATION
+  branch: Physical Medicine & Rehab
+  branch_group: Clinical
+  degree: DNB
+- code: DPHYN
+  name: (NBEMS) PHYSIOLOGY
+  branch: Physiology
+  branch_group: Pre-clinical
+  degree: DNB
+- code: DPSYN
+  name: (NBEMS) PSYCHIATRY
+  branch: Psychiatry
+  branch_group: Clinical
+  degree: DNB
+- code: DPEDS
+  name: (NBEMS) Paediatric Surgery (Direct 6 Years Course)
+  branch: Paediatric Surgery
+  branch_group: Clinical
+  degree: DNB
+- code: DPLM
+  name: (NBEMS) Palliative Medicine
+  branch: Palliative Medicine
+  branch_group: Clinical
+  degree: DNB
+- code: DPLS
+  name: (NBEMS) Plastic and Reconstructive Surgery (Direct 6 Years Course)
+  branch: Plastic Surgery
+  branch_group: Clinical
+  degree: DNB
+- code: DRTH
+  name: (NBEMS) RADIATION ONCOLOGY
+  branch: Radiation Oncology
+  branch_group: Clinical
+  degree: DNB
+- code: DRAD
+  name: (NBEMS) RADIO-DIAGNOSIS
+  branch: Radiology
+  branch_group: Clinical
+  degree: DNB
+- code: DREP
+  name: (NBEMS) Respiratory Medicine
+  branch: Respiratory Medicine
+  branch_group: Clinical
+  degree: DNB
+- code: NBDA
+  name: (NBEMS-DIPLOMA) ANAESTHESIOLOGY
+  branch: Anaesthesiology
+  branch_group: Clinical
+  degree: DNB Diploma
+- code: NFLM
+  name: (NBEMS-DIPLOMA) FAMILY MEDICINE
+  branch: Family Medicine
+  branch_group: Clinical
+  degree: DNB Diploma
+- code: NBDO
+  name: (NBEMS-DIPLOMA) OPHTHALMOLOGY
+  branch: Ophthalmology
+  branch_group: Clinical
+  degree: DNB Diploma
+- code: NDGO
+  name: (NBEMS-DIPLOMA) Obstetrics and Gynaecology
+  branch: Obstetrics & Gynaecology
+  branch_group: Clinical
+  degree: DNB Diploma
+- code: NDLO
+  name: (NBEMS-DIPLOMA) Otorhinolaryngology (E.N.T.)
+  branch: ENT
+  branch_group: Clinical
+  degree: DNB Diploma
+- code: NDCH
+  name: (NBEMS-DIPLOMA) PAEDIATRICS
+  branch: Paediatrics
+  branch_group: Clinical
+  degree: DNB Diploma
+- code: NDMR
+  name: (NBEMS-DIPLOMA) RADIO-DIAGNOSIS
+  branch: Radiology
+  branch_group: Clinical
+  degree: DNB Diploma
+- code: NDTC
+  name: (NBEMS-DIPLOMA) Tuberculosis and CHEST DISEASES
+  branch: Respiratory Medicine
+  branch_group: Clinical
+  degree: DNB Diploma
+- code: D-RM
+  name: DIP IN RADIATION MEDICINE
+  branch: Radiation Oncology
+  branch_group: Clinical
+  degree: Diploma
+- code: DDVL
+  name: DIP. IN DERM. VENEREOLOGY and LEPROSY/DERMATOLOGY /VENEREOLOGY and DERMATOLOGY/LEPROSY/VENEREAL DISEASE and LEPROSY
+  branch: Dermatology
+  branch_group: Clinical
+  degree: Diploma
+- code: D-FM
+  name: DIP. IN FORENSIC MEDICINE
+  branch: Forensic Medicine
+  branch_group: Para-clinical
+  degree: Diploma
+- code: DMRT
+  name: DIP. IN MEDICAL RADIO-THERAPY
+  branch: Radiation Oncology
+  branch_group: Clinical
+  degree: Diploma
+- code: DPMR
+  name: DIP. IN PHY. MEDICINE and REHAB.
+  branch: Physical Medicine & Rehab
+  branch_group: Clinical
+  degree: Diploma
+- code: D-SM
+  name: DIP. IN SPORTS MEDICINE
+  branch: Sports Medicine
+  branch_group: Clinical
+  degree: Diploma
+- code: DTCD
+  name: DIP. IN T.B. and CHEST DISEASES
+  branch: Respiratory Medicine
+  branch_group: Clinical
+  degree: Diploma
+- code: D-GO
+  name: DIP.IN GYNAE. and OBST.
+  branch: Obstetrics & Gynaecology
+  branch_group: Clinical
+  degree: Diploma
+- code: DHBT
+  name: DIP.IN IMMUNO-HAEMATOLOGY and BLOOD TRANSFUSION
+  branch: Transfusion Medicine
+  branch_group: Para-clinical
+  degree: Diploma
+- code: DMRD
+  name: DIP.IN MEDICAL RADIO-DIAGNOSIS
+  branch: Radiology
+  branch_group: Clinical
+  degree: Diploma
+- code: D-AN
+  name: DIPLOMA IN ANAESTHESIOLOGY
+  branch: Anaesthesiology
+  branch_group: Clinical
+  degree: Diploma
+- code: DBCT
+  name: DIPLOMA IN BACTERIOLOGY
+  branch: Microbiology
+  branch_group: Para-clinical
+  degree: Diploma
+- code: D-CH
+  name: DIPLOMA IN CHILD HEALTH/ PAEDIATRICS
+  branch: Paediatrics
+  branch_group: Clinical
+  degree: Diploma
+- code: D-CP
+  name: DIPLOMA IN CLINICAL PATHOLOGY
+  branch: Pathology
+  branch_group: Para-clinical
+  degree: Diploma
+- code: DDIB
+  name: DIPLOMA IN DIABETOLOGY
+  branch: Diabetology
+  branch_group: Clinical
+  degree: Diploma
+- code: DHEA
+  name: DIPLOMA IN HEALTH ADMINISTRATION
+  branch: Hospital Administration
+  branch_group: Para-clinical
+  degree: Diploma
+- code: D-OP
+  name: DIPLOMA IN OPHTHALMOLOGY/DOMS
+  branch: Ophthalmology
+  branch_group: Clinical
+  degree: Diploma
+- code: DORT
+  name: DIPLOMA IN ORTHOPAEDICS
+  branch: Orthopaedics
+  branch_group: Clinical
+  degree: Diploma
+- code: D-LO
+  name: DIPLOMA IN OTO-RHINO-LARYNGOLOGY
+  branch: ENT
+  branch_group: Clinical
+  degree: Diploma
+- code: D-PH
+  name: DIPLOMA IN PUBLIC HEALTH
+  branch: Community Medicine
+  branch_group: Para-clinical
+  degree: Diploma
+- code: NDEM
+  name: Diploma-Emergency Medicine
+  branch: Emergency Medicine
+  branch_group: Clinical
+  degree: Diploma
+- code: NUSR
+  name: M.Ch. (Neuro Surgery)
+  branch: Neurosurgery
+  branch_group: Clinical
+  degree: M.Ch (6 yr)
+- code: AERO
+  name: M.D. (AEROSPACE MEDICINE)
+  branch: Aerospace Medicine
+  branch_group: Clinical
+  degree: MD/MS
+- code: ASTH
+  name: M.D. (ANAESTHESIOLOGY)
+  branch: Anaesthesiology
+  branch_group: Clinical
+  degree: MD/MS
+- code: BIOC
+  name: M.D. (BIOCHEMISTRY)
+  branch: Biochemistry
+  branch_group: Pre-clinical
+  degree: MD/MS
+- code: CH-A
+  name: M.D. (COMMUNITY HEALTH and ADMN.)
+  branch: Hospital Administration
+  branch_group: Para-clinical
+  degree: MD/MS
+- code: DV-L
+  name: M.D. (DERM.,VENE. and LEPROSY)/ (DERMATOLOGY)/(SKIN and VENEREAL DISEASES)/(VENEREOLOGY)
+  branch: Dermatology
+  branch_group: Clinical
+  degree: MD/MS
+- code: E-CC
+  name: M.D. (Emergency and Critical Care)/M.D. (Emergency Medicine)
+  branch: Emergency Medicine
+  branch_group: Clinical
+  degree: MD/MS
+- code: F-ME
+  name: M.D. (FAMILY MEDICINE)
+  branch: Family Medicine
+  branch_group: Clinical
+  degree: MD/MS
+- code: FMED
+  name: M.D. (FORENSIC MEDICINE)
+  branch: Forensic Medicine
+  branch_group: Para-clinical
+  degree: MD/MS
+- code: GMED
+  name: M.D. (GENERAL MEDICINE)
+  branch: General Medicine
+  branch_group: Clinical
+  degree: MD/MS
+- code: HADM
+  name: M.D. (Hospital Administration)
+  branch: Hospital Administration
+  branch_group: Para-clinical
+  degree: MD/MS
+- code: MICR
+  name: M.D. (MICROBIOLOGY)
+  branch: Microbiology
+  branch_group: Para-clinical
+  degree: MD/MS
+- code: OBGY
+  name: M.D. (Obst. and Gynae)/MS (Obstetrics and Gynaecology)
+  branch: Obstetrics & Gynaecology
+  branch_group: Clinical
+  degree: MD/MS
+- code: PAED
+  name: M.D. (PAEDIATRICS)
+  branch: Paediatrics
+  branch_group: Clinical
+  degree: MD/MS
+- code: PMED
+  name: M.D. (PALLIATIVE MEDICINE)
+  branch: Palliative Medicine
+  branch_group: Clinical
+  degree: MD/MS
+- code: PATH
+  name: M.D. (PATHOLOGY)
+  branch: Pathology
+  branch_group: Para-clinical
+  degree: MD/MS
+- code: PHAR
+  name: M.D. (PHARMACOLOGY)
+  branch: Pharmacology
+  branch_group: Para-clinical
+  degree: MD/MS
+- code: PM-R
+  name: M.D. (PHYSICAL MED. and REHABILITATION)
+  branch: Physical Medicine & Rehab
+  branch_group: Clinical
+  degree: MD/MS
+- code: PHYS
+  name: M.D. (PHYSIOLOGY)
+  branch: Physiology
+  branch_group: Pre-clinical
+  degree: MD/MS
+- code: P-SM
+  name: M.D. (PREVENTIVE and SOCIAL MEDICINE)/ COMMUNITY MEDICINE
+  branch: Community Medicine
+  branch_group: Para-clinical
+  degree: MD/MS
+- code: PSYY
+  name: M.D. (PSYCHIATRY)
+  branch: Psychiatry
+  branch_group: Clinical
+  degree: MD/MS
+- code: RADD
+  name: M.D. (RADIO-DIAGNOSIS)
+  branch: Radiology
+  branch_group: Clinical
+  degree: MD/MS
+- code: RADT
+  name: M.D. (Radiotherapy/ Radiation Oncology)
+  branch: Radiation Oncology
+  branch_group: Clinical
+  degree: MD/MS
+- code: TMED
+  name: M.D. (TROPICAL MEDICINE)
+  branch: Tropical Medicine
+  branch_group: Clinical
+  degree: MD/MS
+- code: TBRD
+  name: M.D. (Tuberculosis and Respiratory diseases)/Pulmonary Medicine /M.D. (Respiratory Medicine)
+  branch: Respiratory Medicine
+  branch_group: Clinical
+  degree: MD/MS
+- code: GERA
+  name: M.D. GERIATRICS
+  branch: Geriatrics
+  branch_group: Clinical
+  degree: MD/MS
+- code: N-ME
+  name: M.D. IN NUCLEAR MEDICINE
+  branch: Nuclear Medicine
+  branch_group: Clinical
+  degree: MD/MS
+- code: T-FM
+  name: M.D. IN TRANSFUSION MEDICINE/ IMMUNO-HAEMATOLOGY and BLOOD TRANSFUSION
+  branch: Transfusion Medicine
+  branch_group: Para-clinical
+  degree: MD/MS
+- code: SMED
+  name: M.D. Sports Medicine
+  branch: Sports Medicine
+  branch_group: Clinical
+  degree: MD/MS
+- code: LMED
+  name: M.D.Laboratory Medicine Course
+  branch: Laboratory Medicine
+  branch_group: Para-clinical
+  degree: MD/MS
+- code: DMPH
+  name: M.P.H. (EPIDEMIOLOGY)
+  branch: Community Medicine
+  branch_group: Para-clinical
+  degree: MPH
+- code: MSTS
+  name: M.S. ( Traumatology and Surgery )
+  branch: Traumatology & Surgery
+  branch_group: Clinical
+  degree: MD/MS
+- code: EN-T
+  name: M.S. (E.N.T.)
+  branch: ENT
+  branch_group: Clinical
+  degree: MD/MS
+- code: GSUR
+  name: M.S. (GENERAL SURGERY)
+  branch: General Surgery
+  branch_group: Clinical
+  degree: MD/MS
+- code: OPTH
+  name: M.S. (OPHTHALMOLOGY)
+  branch: Ophthalmology
+  branch_group: Clinical
+  degree: MD/MS
+- code: ORTH
+  name: M.S. (ORTHOPAEDICS)
+  branch: Orthopaedics
+  branch_group: Clinical
+  degree: MD/MS
+- code: ANAT
+  name: MD/MS (Anatomy)
+  branch: Anatomy
+  branch_group: Pre-clinical
+  degree: MD/MS
+- code: DPSY
+  name: PG Diploma in Psychological Medicine / Psychiatric Medicine
+  branch: Psychiatry
+  branch_group: Clinical
+  degree: Diploma

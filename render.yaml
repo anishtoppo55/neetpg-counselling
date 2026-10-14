@@ -1,0 +1,73 @@
+# Render Blueprint – free-tier demo of the NEET PG Counselling Platform.
+#
+# Creates three resources: a free Postgres, the predictor API and the dashboard.
+# Deploy: push THIS directory as the repository root, then Render → New → Blueprint → pick the repo.
+# (If counselling_platform is a subdirectory of your repo instead, prefix both rootDir values with it.)
+# Full walk-through, including loading the data: docs/deploy-render.md
+#
+# Free-tier facts that shape this file (render.com/docs/free):
+#   * a free Postgres has 1 GB storage and EXPIRES 30 DAYS after creation (14-day grace period)
+#   * free services sleep after 15 minutes idle and take ~1 minute to wake
+#   * a free service can make private-network calls but CANNOT receive them, so the API needs a public
+#     URL; it is protected by the shared secret API_TOKEN instead (generated once, copied to the web service)
+#
+# For anything beyond testing, move both services to a paid plan and make the API a private service.
+
+databases:
+  - name: neetpg-db
+    databaseName: neetpg
+    user: neetpg
+    plan: free
+    postgresMajorVersion: "16"
+    ipAllowList:                       # needed to load the data from your machine; empty = Render-only
+      - source: 0.0.0.0/0
+        description: temporary – remove after the data is loaded
+
+services:
+  # ----------------------------------------------------------------- predictor API
+  - type: web
+    name: neetpg-api
+    runtime: docker
+    plan: free
+    region: singapore                  # closest Render region to India; change if you prefer
+    rootDir: ./api
+    dockerfilePath: ./Dockerfile.prod
+    healthCheckPath: /api/health       # open even when the token is set
+    autoDeployTrigger: commit
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: neetpg-db
+          property: connectionString   # internal URL: stays on Render's private network
+      - key: API_TOKEN
+        generateValue: true            # created once by Render; the web service copies it below
+      - key: DOCS_PUBLIC
+        value: "false"                 # /docs needs the token too; set "true" to browse it openly
+      - key: CORS_ORIGINS
+        value: ""                      # the dashboard calls this API from its server, not the browser
+      - key: DB_POOL_MAX
+        value: "3"                     # free Postgres allows few connections
+
+  # ----------------------------------------------------------------- dashboard
+  - type: web
+    name: neetpg-web
+    runtime: docker
+    plan: free
+    region: singapore
+    rootDir: ./web
+    dockerfilePath: ./Dockerfile.prod
+    healthCheckPath: /api/ping         # static route, no database needed
+    autoDeployTrigger: commit
+    envVars:
+      - key: API_HOST                  # blueprints inject a bare hostname; lib/api.ts prefixes https://
+        fromService:
+          name: neetpg-api
+          type: web
+          property: host
+      - key: API_TOKEN                 # same secret as the API
+        fromService:
+          name: neetpg-api
+          type: web
+          envVarKey: API_TOKEN
+      - key: NODE_ENV
+        value: production
