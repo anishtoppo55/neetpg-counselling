@@ -15,7 +15,7 @@ wording is paraphrased.
 | Resource | Plan | Notes |
 |---|---|---|
 | `neetpg-db` – Postgres 16 | free | 1 GB storage, **expires 30 days after creation** |
-| `neetpg-api` – predictor API | free | Public URL, locked with the `API_TOKEN` secret. Health check `/api/health` |
+| `neetpg-api` – predictor API | free | Public URL, locked with the `API_TOKEN` secret. Health check `/api/live` |
 | `neetpg-web` – dashboard | free | Public URL, the only thing a visitor needs. Health check `/api/ping` |
 
 Why the API is public: a free Render service can *make* private-network calls but cannot *receive* them, so the
@@ -39,6 +39,14 @@ provenance is still tracked). If you prefer to keep `counselling_platform` as a 
 prefix both `rootDir` values in `render.yaml` with it.
 
 ## 2. Create the services
+
+> **One region for everything.** Every Render region has its own private network, so a service can only resolve
+> a database's internal hostname if both sit in the same region. `render.yaml` pins the database and both
+> services to `singapore`; if you change it, change all three. Databases default to `oregon` when the field is
+> omitted, which is exactly how the first deploy of this project failed
+> (`error connecting in 'pool-1': [Errno -2] Name or service not known`, then a health-check timeout).
+> Region cannot be changed after a resource is created — you have to delete and recreate it.
+
 
 1. Render dashboard → **New** → **Blueprint**.
 2. Pick the repository. Render reads `render.yaml` and lists the database and two services.
@@ -81,9 +89,14 @@ and the rows are inserted over the network.
 ## 4. Check it
 
 ```bash
+curl -s https://neetpg-api-XXXX.onrender.com/api/live        # {"status":"ok"} – liveness, no database
 curl -s https://neetpg-api-XXXX.onrender.com/api/health      # {"status":"ok","data_version":N}
 curl -s https://neetpg-api-XXXX.onrender.com/api/meta        # 401 – correct, the token is required
 ```
+
+`/api/live` answers even when the database is down or empty, which is why it is the health-check path.
+`/api/health` is the readiness probe: it returns 503 with `{"status":"degraded",…}` until the database is
+reachable *and* migrated, so use it to confirm step 3 worked.
 
 Then open `https://neetpg-web-XXXX.onrender.com`, enter a rank and category, and confirm the table fills.
 Remember the first request after 15 idle minutes takes about a minute while the service wakes.

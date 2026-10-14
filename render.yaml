@@ -19,6 +19,10 @@ databases:
     user: neetpg
     plan: free
     postgresMajorVersion: "16"
+    # MUST match the services' region. Each Render region has its own private network, so a service can only
+    # resolve a database's internal hostname inside the same region. A mismatch shows up at runtime as
+    # "error connecting in 'pool-1': [Errno -2] Name or service not known". Databases default to oregon.
+    region: singapore
     ipAllowList:                       # needed to load the data from your machine; empty = Render-only
       - source: 0.0.0.0/0
         description: temporary – remove after the data is loaded
@@ -32,7 +36,7 @@ services:
     region: singapore                  # closest Render region to India; change if you prefer
     rootDir: ./api
     dockerfilePath: ./Dockerfile.prod
-    healthCheckPath: /api/health       # open even when the token is set
+    healthCheckPath: /api/live         # liveness only: a database problem must not block the deploy
     autoDeployTrigger: commit
     envVars:
       - key: DATABASE_URL

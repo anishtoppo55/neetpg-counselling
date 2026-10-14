@@ -253,6 +253,12 @@ short `docs/data_model.md`.
 * Accepted limits for a demo: database expires 30 days after creation, services sleep after 15 minutes idle
   (~1 min wake), 750 free instance hours/month, 5 GB bandwidth.
 
+**Found on the first real deploy (fixed):** the blueprint pinned the services to `singapore` but left the
+database region unset, so Render created it in `oregon` — cross-region means no shared private network, which
+surfaced as `[Errno -2] Name or service not known` and a health-check timeout. The database now carries an
+explicit region, the health check points at a new liveness endpoint (`/api/live`) so a database outage or the
+free database expiring cannot block a deploy, and `/` answers GET and HEAD without the token for Render's port probe.
+
 **Still to do for real hosting:** paid plans (API as a private service, no cold starts), non-expiring Postgres
 with backups, rate limiting, and authentication once shortlists become per-user.
 

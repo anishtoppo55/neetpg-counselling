@@ -24,6 +24,18 @@ def test_health(client):
     assert r.status_code == 200 and r.json()['status'] == 'ok'
 
 
+def test_liveness_and_root_need_no_database_or_token(client, monkeypatch):
+    """The platform probes / and /api/live; both must answer 200 regardless of token or database state."""
+    from app import config
+    monkeypatch.setattr(config, 'API_TOKEN', 's3cret-token')
+    for path in ('/', '/api/live'):
+        r = client.get(path)
+        assert r.status_code == 200, path
+    assert client.get('/api/live').json() == {'status': 'ok'}
+    for path in ('/', '/api/live'):                    # Render probes with HEAD
+        assert client.request('HEAD', path).status_code == 200, path
+
+
 def test_golden_matches_notebook(client):
     """Notebook (2025, ST, AIR 30,000, AIQ, clinical MD/MS): 520 options = 170 Safe, 114 Good, 67 Borderline,
     169 Later rounds. The notebook dropped 19 institutes whose address has no state (pandas pivot on a NaN key),
@@ -182,8 +194,10 @@ def test_token_is_required_when_configured(client, monkeypatch):
     assert client.get('/api/meta').status_code == 401
     assert client.get('/openapi.json').status_code == 401
 
-    # health stays open so the platform health check keeps working
+    # platform probes stay open so health checks and port detection keep working
     assert client.get('/api/health').status_code == 200
+    assert client.get('/api/live').status_code == 200
+    assert client.get('/').status_code == 200
 
     headers = {'X-API-Token': 's3cret-token'}
     assert client.post('/api/predict', json={'rank': 30000, 'category': 'ST'}, headers=headers).status_code == 200

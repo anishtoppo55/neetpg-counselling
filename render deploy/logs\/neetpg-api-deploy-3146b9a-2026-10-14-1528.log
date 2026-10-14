@@ -1,0 +1,215 @@
+2026-10-14T09:58:18.028502418Z ==> Cloning from https://github.com/anishtoppo55/neetpg-counselling
+2026-10-14T09:58:24.263558153Z ==> Checking out commit 3146b9a92555d1c70691fd27ffe2386f8b0a9589 in branch main
+2026-10-14T09:58:26.175765601Z #1 [internal] load build definition from Dockerfile.prod
+2026-10-14T09:58:26.175782139Z #1 transferring dockerfile: 723B done
+2026-10-14T09:58:26.175784306Z #1 DONE 0.0s
+2026-10-14T09:58:26.175785631Z 
+2026-10-14T09:58:26.175787644Z #2 [internal] load metadata for docker.io/library/python:3.12.7-slim
+2026-10-14T09:58:27.382161164Z #2 ...
+2026-10-14T09:58:27.382176206Z 
+2026-10-14T09:58:27.382178741Z #3 [auth] library/python:pull render-prod/docker-mirror-repository/library/python:pull token for us-west1-docker.pkg.dev
+2026-10-14T09:58:27.382183311Z #3 DONE 0.0s
+2026-10-14T09:58:27.532297955Z 
+2026-10-14T09:58:27.532305128Z #2 [internal] load metadata for docker.io/library/python:3.12.7-slim
+2026-10-14T09:58:32.524666225Z #2 DONE 6.5s
+2026-10-14T09:58:32.693451452Z 
+2026-10-14T09:58:32.693459363Z #4 [internal] load .dockerignore
+2026-10-14T09:58:32.693461409Z #4 transferring context: 92B done
+2026-10-14T09:58:32.693462891Z #4 DONE 0.0s
+2026-10-14T09:58:32.693464218Z 
+2026-10-14T09:58:32.693465591Z #5 [internal] load build context
+2026-10-14T09:58:32.693470066Z #5 transferring context: 42.52kB done
+2026-10-14T09:58:32.693472476Z #5 DONE 0.0s
+2026-10-14T09:58:32.693475154Z 
+2026-10-14T09:58:32.693477354Z #6 [1/6] FROM docker.io/library/python:3.12.7-slim@sha256:60d9996b6a8a3689d36db740b49f4327be3be09a21122bd02fb8895abb38b50d
+2026-10-14T09:58:32.693480017Z #6 resolve docker.io/library/python:3.12.7-slim@sha256:60d9996b6a8a3689d36db740b49f4327be3be09a21122bd02fb8895abb38b50d done
+2026-10-14T09:58:37.762076059Z #6 extracting sha256:bc0965b23a04fe7f2d9fb20f597008fcf89891de1c705ffc1c80483a1f098e4f
+2026-10-14T09:58:38.205854538Z #6 extracting sha256:bc0965b23a04fe7f2d9fb20f597008fcf89891de1c705ffc1c80483a1f098e4f 0.6s done
+2026-10-14T09:58:38.205869816Z #6 DONE 5.7s
+2026-10-14T09:58:38.445563576Z 
+2026-10-14T09:58:38.445584901Z #6 [1/6] FROM docker.io/library/python:3.12.7-slim@sha256:60d9996b6a8a3689d36db740b49f4327be3be09a21122bd02fb8895abb38b50d
+2026-10-14T09:58:38.445589007Z #6 extracting sha256:5e739003c33414360cf2cec9452e1935b1bfcae79f279c33009bf4c0d5596f52 0.1s done
+2026-10-14T09:58:38.445590692Z #6 extracting sha256:5f86e0092844f78afa84a3b63059ea82e82fa93a28eedde55386370d924e8cf3
+2026-10-14T09:58:38.613516218Z #6 extracting sha256:5f86e0092844f78afa84a3b63059ea82e82fa93a28eedde55386370d924e8cf3 0.3s done
+2026-10-14T09:58:38.613526224Z #6 DONE 6.1s
+2026-10-14T09:58:38.790879613Z 
+2026-10-14T09:58:38.790901132Z #6 [1/6] FROM docker.io/library/python:3.12.7-slim@sha256:60d9996b6a8a3689d36db740b49f4327be3be09a21122bd02fb8895abb38b50d
+2026-10-14T09:58:38.790904044Z #6 extracting sha256:46271edb89aec00565d974118707aaded82928c7ea7cb0a2bcc94b1f17e17e3d 0.0s done
+2026-10-14T09:58:38.790905463Z #6 DONE 6.1s
+2026-10-14T09:58:38.790906767Z 
+2026-10-14T09:58:38.790908731Z #7 [2/6] WORKDIR /srv
+2026-10-14T09:58:38.790910041Z #7 DONE 0.0s
+2026-10-14T09:58:38.790911445Z 
+2026-10-14T09:58:38.790913318Z #8 [3/6] COPY requirements.txt .
+2026-10-14T09:58:38.790914651Z #8 DONE 0.0s
+2026-10-14T09:58:38.790915797Z 
+2026-10-14T09:58:38.790917494Z #9 [4/6] RUN pip install --no-cache-dir -r requirements.txt
+2026-10-14T09:58:40.104839861Z #9 1.464 Collecting fastapi==0.115.4 (from -r requirements.txt (line 1))
+2026-10-14T09:58:40.349683269Z #9 1.501   Downloading fastapi-0.115.4-py3-none-any.whl.metadata (27 kB)
+2026-10-14T09:58:40.34970785Z #9 1.552 Collecting uvicorn==0.32.0 (from uvicorn[standard]==0.32.0->-r requirements.txt (line 2))
+2026-10-14T09:58:40.349709995Z #9 1.559   Downloading uvicorn-0.32.0-py3-none-any.whl.metadata (6.6 kB)
+2026-10-14T09:58:40.368912791Z #9 1.728 Collecting pydantic==2.9.2 (from -r requirements.txt (line 3))
+2026-10-14T09:58:40.591825745Z #9 1.747   Downloading pydantic-2.9.2-py3-none-any.whl.metadata (149 kB)
+2026-10-14T09:58:40.591844161Z #9 1.780 Collecting psycopg==3.2.3 (from psycopg[binary]==3.2.3->-r requirements.txt (line 4))
+2026-10-14T09:58:40.591846047Z #9 1.785   Downloading psycopg-3.2.3-py3-none-any.whl.metadata (4.3 kB)
+2026-10-14T09:58:40.59184782Z #9 1.801 Collecting psycopg-pool==3.2.3 (from -r requirements.txt (line 5))
+2026-10-14T09:58:40.671033025Z #9 2.031   Downloading psycopg_pool-3.2.3-py3-none-any.whl.metadata (2.6 kB)
+2026-10-14T09:58:40.830992555Z #9 2.075 Collecting httpx==0.27.2 (from -r requirements.txt (line 6))
+2026-10-14T09:58:40.831006213Z #9 2.080   Downloading httpx-0.27.2-py3-none-any.whl.metadata (7.1 kB)
+2026-10-14T09:58:40.831007812Z #9 2.191 Collecting pytest==8.3.3 (from -r requirements.txt (line 7))
+2026-10-14T09:58:40.971173103Z #9 2.196   Downloading pytest-8.3.3-py3-none-any.whl.metadata (7.5 kB)
+2026-10-14T09:58:40.971192043Z #9 2.249 Collecting starlette<0.42.0,>=0.40.0 (from fastapi==0.115.4->-r requirements.txt (line 1))
+2026-10-14T09:58:40.971193809Z #9 2.272   Downloading starlette-0.41.3-py3-none-any.whl.metadata (6.0 kB)
+2026-10-14T09:58:40.971195384Z #9 2.331 Collecting typing-extensions>=4.8.0 (from fastapi==0.115.4->-r requirements.txt (line 1))
+2026-10-14T09:58:41.179149745Z #9 2.334   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+2026-10-14T09:58:41.17917155Z #9 2.360 Collecting click>=7.0 (from uvicorn==0.32.0->uvicorn[standard]==0.32.0->-r requirements.txt (line 2))
+2026-10-14T09:58:41.17917381Z #9 2.363   Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+2026-10-14T09:58:41.179175598Z #9 2.372 Collecting h11>=0.8 (from uvicorn==0.32.0->uvicorn[standard]==0.32.0->-r requirements.txt (line 2))
+2026-10-14T09:58:41.179177161Z #9 2.375   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+2026-10-14T09:58:41.179178682Z #9 2.385 Collecting annotated-types>=0.6.0 (from pydantic==2.9.2->-r requirements.txt (line 3))
+2026-10-14T09:58:41.179180069Z #9 2.388   Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+2026-10-14T09:58:42.027776426Z #9 3.387 Collecting pydantic-core==2.23.4 (from pydantic==2.9.2->-r requirements.txt (line 3))
+2026-10-14T09:58:42.129640143Z #9 3.393   Downloading pydantic_core-2.23.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.6 kB)
+2026-10-14T09:58:42.12965428Z #9 3.435 Collecting anyio (from httpx==0.27.2->-r requirements.txt (line 6))
+2026-10-14T09:58:42.129656065Z #9 3.439   Downloading anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+2026-10-14T09:58:42.129657504Z #9 3.460 Collecting certifi (from httpx==0.27.2->-r requirements.txt (line 6))
+2026-10-14T09:58:42.129658931Z #9 3.463   Downloading certifi-2026.7.22-py3-none-any.whl.metadata (2.5 kB)
+2026-10-14T09:58:42.129660762Z #9 3.486 Collecting httpcore==1.* (from httpx==0.27.2->-r requirements.txt (line 6))
+2026-10-14T09:58:42.129662207Z #9 3.489   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+2026-10-14T09:58:42.374702651Z #9 3.506 Collecting idna (from httpx==0.27.2->-r requirements.txt (line 6))
+2026-10-14T09:58:42.374722958Z #9 3.509   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+2026-10-14T09:58:42.374724809Z #9 3.518 Collecting sniffio (from httpx==0.27.2->-r requirements.txt (line 6))
+2026-10-14T09:58:42.374726397Z #9 3.522   Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+2026-10-14T09:58:42.374727849Z #9 3.532 Collecting iniconfig (from pytest==8.3.3->-r requirements.txt (line 7))
+2026-10-14T09:58:42.374736088Z #9 3.536   Downloading iniconfig-2.3.1-py3-none-any.whl.metadata (2.8 kB)
+2026-10-14T09:58:42.37473758Z #9 3.558 Collecting packaging (from pytest==8.3.3->-r requirements.txt (line 7))
+2026-10-14T09:58:42.374739009Z #9 3.561   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+2026-10-14T09:58:42.374740732Z #9 3.578 Collecting pluggy<2,>=1.5 (from pytest==8.3.3->-r requirements.txt (line 7))
+2026-10-14T09:58:42.374742122Z #9 3.584   Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+2026-10-14T09:58:42.444684574Z #9 3.804 Collecting psycopg-binary==3.2.3 (from psycopg[binary]==3.2.3->-r requirements.txt (line 4))
+2026-10-14T09:58:42.573405582Z #9 3.809   Downloading psycopg_binary-3.2.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.8 kB)
+2026-10-14T09:58:42.57342443Z #9 3.861 Collecting httptools>=0.5.0 (from uvicorn[standard]==0.32.0->-r requirements.txt (line 2))
+2026-10-14T09:58:42.573427023Z #9 3.865   Downloading httptools-0.9.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (3.5 kB)
+2026-10-14T09:58:42.573428529Z #9 3.882 Collecting python-dotenv>=0.13 (from uvicorn[standard]==0.32.0->-r requirements.txt (line 2))
+2026-10-14T09:58:42.573430527Z #9 3.886   Downloading python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+2026-10-14T09:58:42.573432024Z #9 3.933 Collecting pyyaml>=5.1 (from uvicorn[standard]==0.32.0->-r requirements.txt (line 2))
+2026-10-14T09:58:42.741442893Z #9 3.937   Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+2026-10-14T09:58:42.741459521Z #9 3.988 Collecting uvloop!=0.15.0,!=0.15.1,>=0.14.0 (from uvicorn[standard]==0.32.0->-r requirements.txt (line 2))
+2026-10-14T09:58:42.74146138Z #9 3.992   Downloading uvloop-0.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.1 kB)
+2026-10-14T09:58:42.741463815Z #9 4.101 Collecting watchfiles>=0.13 (from uvicorn[standard]==0.32.0->-r requirements.txt (line 2))
+2026-10-14T09:58:42.896034822Z #9 4.105   Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)
+2026-10-14T09:58:42.942303051Z #9 4.302 Collecting websockets>=10.4 (from uvicorn[standard]==0.32.0->-r requirements.txt (line 2))
+2026-10-14T09:58:43.046947097Z #9 4.306   Downloading websockets-17.2-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (6.3 kB)
+2026-10-14T09:58:43.046959957Z #9 4.371 Downloading fastapi-0.115.4-py3-none-any.whl (94 kB)
+2026-10-14T09:58:43.046961665Z #9 4.379 Downloading uvicorn-0.32.0-py3-none-any.whl (63 kB)
+2026-10-14T09:58:43.046963124Z #9 4.384 Downloading pydantic-2.9.2-py3-none-any.whl (434 kB)
+2026-10-14T09:58:43.046964607Z #9 4.393 Downloading psycopg-3.2.3-py3-none-any.whl (197 kB)
+2026-10-14T09:58:43.046966119Z #9 4.397 Downloading psycopg_pool-3.2.3-py3-none-any.whl (38 kB)
+2026-10-14T09:58:43.046967498Z #9 4.401 Downloading httpx-0.27.2-py3-none-any.whl (76 kB)
+2026-10-14T09:58:43.0469688Z #9 4.406 Downloading pytest-8.3.3-py3-none-any.whl (342 kB)
+2026-10-14T09:58:43.149174653Z #9 4.410 Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+2026-10-14T09:58:43.149195045Z #9 4.417 Downloading psycopg_binary-3.2.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (4.2 MB)
+2026-10-14T09:58:43.149197483Z #9 4.437    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.2/4.2 MB 235.4 MB/s eta 0:00:00
+2026-10-14T09:58:43.149199767Z #9 4.444 Downloading pydantic_core-2.23.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+2026-10-14T09:58:43.149201285Z #9 4.452    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 322.7 MB/s eta 0:00:00
+2026-10-14T09:58:43.149209405Z #9 4.455 Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+2026-10-14T09:58:43.149210748Z #9 4.459 Downloading click-8.5.0-py3-none-any.whl (125 kB)
+2026-10-14T09:58:43.149211981Z #9 4.462 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+2026-10-14T09:58:43.149213948Z #9 4.466 Downloading httptools-0.9.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (552 kB)
+2026-10-14T09:58:43.149215361Z #9 4.473    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 552.8/552.8 kB 311.5 MB/s eta 0:00:00
+2026-10-14T09:58:43.149216628Z #9 4.478 Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+2026-10-14T09:58:43.149217974Z #9 4.482 Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+2026-10-14T09:58:43.149221643Z #9 4.485 Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+2026-10-14T09:58:43.14922299Z #9 4.488    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 422.5 MB/s eta 0:00:00
+2026-10-14T09:58:43.149224467Z #9 4.494 Downloading starlette-0.41.3-py3-none-any.whl (73 kB)
+2026-10-14T09:58:43.149227248Z #9 4.498 Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+2026-10-14T09:58:43.149229323Z #9 4.501 Downloading idna-3.20-py3-none-any.whl (69 kB)
+2026-10-14T09:58:43.149231405Z #9 4.505 Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+2026-10-14T09:58:43.149233894Z #9 4.509 Downloading uvloop-0.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.5 MB)
+2026-10-14T09:58:43.283702882Z #9 4.531    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 235.6 MB/s eta 0:00:00
+2026-10-14T09:58:43.28372622Z #9 4.535 Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (458 kB)
+2026-10-14T09:58:43.28372931Z #9 4.539 Downloading websockets-17.2-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (225 kB)
+2026-10-14T09:58:43.283731943Z #9 4.543 Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+2026-10-14T09:58:43.283734183Z #9 4.547 Downloading iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+2026-10-14T09:58:43.283736326Z #9 4.550 Downloading packaging-26.3-py3-none-any.whl (129 kB)
+2026-10-14T09:58:43.28373844Z #9 4.554 Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
+2026-10-14T09:58:43.283741445Z #9 4.643 Installing collected packages: websockets, uvloop, typing-extensions, sniffio, pyyaml, python-dotenv, psycopg-binary, pluggy, packaging, iniconfig, idna, httptools, h11, click, certifi, annotated-types, uvicorn, pytest, pydantic-core, psycopg-pool, psycopg, httpcore, anyio, watchfiles, starlette, pydantic, httpx, fastapi
+2026-10-14T09:58:45.075628592Z #9 6.435 Successfully installed annotated-types-0.8.0 anyio-4.15.1 certifi-2026.7.22 click-8.5.0 fastapi-0.115.4 h11-0.16.0 httpcore-1.0.9 httptools-0.9.0 httpx-0.27.2 idna-3.20 iniconfig-2.3.1 packaging-26.3 pluggy-1.6.0 psycopg-3.2.3 psycopg-binary-3.2.3 psycopg-pool-3.2.3 pydantic-2.9.2 pydantic-core-2.23.4 pytest-8.3.3 python-dotenv-1.2.4 pyyaml-6.0.3 sniffio-1.3.1 starlette-0.41.3 typing-extensions-4.16.0 uvicorn-0.32.0 uvloop-0.23.0 watchfiles-1.3.0 websockets-17.2
+2026-10-14T09:58:45.201349768Z #9 6.435 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable.It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+2026-10-14T09:58:45.201375671Z #9 6.561 
+2026-10-14T09:58:45.201377965Z #9 6.561 [notice] A new release of pip is available: 24.2 -> 26.2.1
+2026-10-14T09:58:45.201379562Z #9 6.561 [notice] To update, run: pip install --upgrade pip
+2026-10-14T09:58:45.665722294Z #9 DONE 7.0s
+2026-10-14T09:58:45.886919277Z 
+2026-10-14T09:58:45.886935145Z #10 [5/6] COPY app ./app
+2026-10-14T09:58:45.886937322Z #10 DONE 0.0s
+2026-10-14T09:58:45.886938605Z 
+2026-10-14T09:58:45.886940322Z #11 [6/6] RUN useradd --create-home --uid 1000 api
+2026-10-14T09:58:45.886954752Z #11 DONE 0.1s
+2026-10-14T09:58:45.886956496Z 
+2026-10-14T09:58:45.886957936Z #12 exporting to image
+2026-10-14T09:58:45.886959251Z #12 exporting layers
+2026-10-14T09:58:46.124110377Z #12 exporting layers 0.4s done
+2026-10-14T09:58:46.282242715Z #12 pushing layers
+2026-10-14T09:58:48.324008582Z #12 pushing layers 2.1s done
+2026-10-14T09:58:48.32402889Z #12 DONE 2.6s
+2026-10-14T09:58:48.324031065Z 
+2026-10-14T09:58:48.324032525Z #13 exporting cache to registry
+2026-10-14T09:58:48.324034784Z #13 sending cache export
+2026-10-14T09:58:49.297100857Z #13 sending cache export 3.2s done
+2026-10-14T09:58:49.297115116Z #13 DONE 3.2s
+2026-10-14T09:58:50.917679356Z ==> Deploying...
+2026-10-14T09:58:51.143277741Z ==> Setting WEB_CONCURRENCY=1 by default, based on available CPUs in the instance
+2026-10-14T09:59:04.845160818Z INFO:     Started server process [1]
+2026-10-14T09:59:04.845225429Z INFO:     Waiting for application startup.
+2026-10-14T09:59:04.846714274Z INFO:     Application startup complete.
+2026-10-14T09:59:04.942714347Z INFO:     Uvicorn running on http://0.0.0.0:10000 (Press CTRL+C to quit)
+2026-10-14T09:59:05.014191934Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T09:59:05.734560548Z INFO:     127.0.0.1:40026 - "HEAD / HTTP/1.1" 401 Unauthorized
+2026-10-14T09:59:06.051904063Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T09:59:08.125728233Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T09:59:10.967506855Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T09:59:11.894265306Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T09:59:12.271562953Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T09:59:13.753144312Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T09:59:17.471908368Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T09:59:20.563816346Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T09:59:24.909505302Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T09:59:37.145737464Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T09:59:39.773996264Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:00:09.497739855Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:00:10.304269466Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:01:08.941842644Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:01:16.62471814Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:03:07.826861195Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:03:29.255281532Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:04:04.854886223Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:04:04.854931744Z reconnection attempt in pool 'pool-1' failed after 300.0 sec
+2026-10-14T10:04:10.965096438Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:04:10.965121168Z reconnection attempt in pool 'pool-1' failed after 300.0 sec
+2026-10-14T10:04:20.957556979Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:04:21.996246773Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:04:24.073319645Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:04:28.225276649Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:04:36.527317863Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:04:53.127473882Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:05:26.333912111Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:06:32.729730016Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:08:45.516100091Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:09:20.962082171Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:09:20.962114682Z reconnection attempt in pool 'pool-1' failed after 300.0 sec
+2026-10-14T10:09:30.95668791Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:09:32.050905418Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:09:34.238071004Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:09:38.61646277Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:09:47.359254519Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:10:04.860557872Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:10:39.834800242Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:11:49.781091193Z error connecting in 'pool-1': [Errno -2] Name or service not known
+2026-10-14T10:13:52.089602799Z ==> Timed Out
+2026-10-14T10:13:52.092114343Z ==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+2026-10-14T10:13:55.261556357Z INFO:     Shutting down
+2026-10-14T10:13:55.362119696Z INFO:     Waiting for connections to close. (CTRL+C to force quit)
+2026-10-14T10:13:55.963687466Z INFO:     Waiting for background tasks to complete. (CTRL+C to force quit)
+2026-10-14T10:14:07.862127448Z ==> Detected service running on port 10000
+2026-10-14T10:14:08.260675655Z ==> Docs on specifying a port: https://render.com/docs/web-services#port-binding

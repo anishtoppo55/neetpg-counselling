@@ -28,7 +28,7 @@ app = FastAPI(title='NEET PG Counselling Predictor API', version='0.1.0', lifesp
 app.add_middleware(CORSMiddleware, allow_origins=config.CORS_ORIGINS, allow_methods=['GET', 'POST'],
                    allow_headers=['Content-Type', 'X-API-Token'])
 
-OPEN_PATHS = {'/api/health'}                      # always reachable: Render's health check calls it
+OPEN_PATHS = {'/', '/api/live', '/api/health'}    # platform probes: port detection, health check, diagnostics
 DOCS_PATHS = {'/docs', '/redoc', '/openapi.json', '/docs/oauth2-redirect'}
 
 
@@ -45,12 +45,29 @@ async def require_api_token(request: Request, call_next):
     return await call_next(request)
 
 
+@app.api_route('/', methods=['GET', 'HEAD'])
+def root():
+    """Answers the platform's port probe without a token. Render probes with HEAD, which a GET-only route
+    would reject with 405, so both methods are registered."""
+    return {'service': 'neetpg-api', 'docs': '/docs', 'health': '/api/health', 'live': '/api/live'}
+
+
+@app.api_route('/api/live', methods=['GET', 'HEAD'])
+def live():
+    """Liveness only – never touches the database.
+
+    This is the platform health-check path: a database outage (or the free-tier database expiring) must not
+    block a deploy. Readiness, including the database, is reported by /api/health.
+    """
+    return {'status': 'ok'}
+
+
 @app.get('/api/health')
 def health():
-    """Liveness + the current data version. Open even when a token is configured (used by health checks)."""
+    """Readiness: process up *and* database reachable, plus the current data version."""
     try:
         return {'status': 'ok', 'data_version': repo.data_version()}
-    except Exception as exc:                         # database not reachable yet
+    except Exception as exc:                         # database unreachable / not migrated yet
         return JSONResponse(status_code=503, content={'status': 'degraded', 'detail': str(exc)[:200]})
 
 
