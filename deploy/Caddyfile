@@ -1,0 +1,47 @@
+# Caddy configuration for the production stack (see docker-compose.prod.yml).
+#
+# Caddy is the only service with published ports. It terminates TLS and reverse-proxies everything to the
+# Next.js dashboard; the predictor API stays private on the Docker network.
+#
+# Two environment variables, both supplied by .env through docker-compose.prod.yml:
+#   SITE_HOST   the public hostname, e.g. neetpg-demo.duckdns.org
+#   TLS_EMAIL   an email address  -> a free Let's Encrypt certificate is obtained and renewed automatically
+#               the word `internal` -> a self-signed certificate from Caddy's own CA (local testing only)
+#
+# HTTP->HTTPS redirection is automatic; there is no need to declare a :80 site.
+
+{$SITE_HOST:localhost} {
+	tls {$TLS_EMAIL:internal}
+
+	encode zstd gzip
+
+	header {
+		# 30 days rather than a year: short enough to undo if the hostname is reused for something else.
+		Strict-Transport-Security "max-age=2592000"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+		# This is a personal research aid working with unofficial derived data – keep it out of search results.
+		X-Robots-Tag "noindex, nofollow"
+		-Server
+	}
+
+	# Next.js hashes its build assets, so they can be cached hard. Pages are force-dynamic and send
+	# their own no-store headers, so they are unaffected.
+	@static path /_next/static/* /favicon.ico
+	header @static Cache-Control "public, max-age=31536000, immutable"
+
+	reverse_proxy web:3000
+
+	# The predictor API is intentionally NOT published: every page renders on the server, and no browser
+	# code calls it. Uncomment to expose the JSON API and /docs publicly — and then set API_TOKEN on the
+	# api service in docker-compose.prod.yml first, because this removes its only protection.
+	# handle /api/* {
+	# 	reverse_proxy api:8000
+	# }
+
+	log {
+		output stdout
+		format console
+	}
+}

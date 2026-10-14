@@ -1,4 +1,7 @@
 .env
+deploy/.env.prod
+deploy/.deploy-target
+*.pem
 data/cache/
 data/reports/
 __pycache__/

@@ -1,0 +1,109 @@
+# NEET PG Counselling Platform – production stack for a single small VM (AWS Lightsail, 1–2 GB RAM).
+#
+# Differences from the development ../docker-compose.yml:
+#   * runs the prebuilt ./Dockerfile.prod images (no `build:` key – the box never needs the source tree)
+#   * only Caddy publishes ports; the database and the API are reachable on the Docker network only
+#   * Caddy terminates TLS with a free certificate from Let's Encrypt, so the API needs no shared secret
+#   * no bind mounts of source code, and the database keeps its data in a named volume
+#
+# Usage (normally driven by ./lightsail.sh, which copies this file, Caddyfile and .env to the box):
+#   docker compose --env-file .env -f docker-compose.prod.yml up -d
+#   docker compose --env-file .env -f docker-compose.prod.yml ps
+#
+# The project name differs from the dev stack on purpose: running this locally for a smoke test must not
+# recreate the dev containers or touch the dev database volume.
+
+name: neetpg-prod
+
+services:
+  db:
+    image: postgres:16.4-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-neetpg}
+      POSTGRES_USER: ${POSTGRES_USER:-neetpg}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    # Tuned down for a 1 GB instance: the API is read-only and uses a handful of connections.
+    command:
+      - postgres
+      - -c
+      - max_connections=20
+      - -c
+      - shared_buffers=96MB
+      - -c
+      - work_mem=8MB
+      - -c
+      - maintenance_work_mem=48MB
+      - -c
+      - effective_cache_size=384MB
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-neetpg} -d ${POSTGRES_DB:-neetpg}"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    # No `ports:` – nothing outside the Docker network can open a connection to PostgreSQL.
+
+  api:
+    image: neetpg-api:prod
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-neetpg}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-neetpg}
+      CORS_ORIGINS: ""              # the dashboard calls the API from its server, never from the browser
+      DB_POOL_MAX: ${DB_POOL_MAX:-3}
+      # API_TOKEN is deliberately unset: the API is not published, so there is no public attack surface.
+      DOCS_PUBLIC: "true"           # /docs is still only reachable from inside the box
+    healthcheck:
+      # Liveness only. /api/health answers 503 until the data is loaded, and the data can only be loaded
+      # after the stack is running – using it here would deadlock the first deploy (the same trap that
+      # made the first Render deploy time out).
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/live', timeout=3)\""]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  web:
+    image: neetpg-web:prod
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      API_BASE_INTERNAL: http://api:8000
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: "1"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/api/ping').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    depends_on:
+      - web
+    environment:
+      SITE_HOST: ${SITE_HOST:?set SITE_HOST in .env, e.g. yourname.duckdns.org}
+      # An email address enables Let's Encrypt; the literal word `internal` issues a local self-signed
+      # certificate instead, which is what a local smoke test should use.
+      TLS_EMAIL: ${TLS_EMAIL:-internal}
+    ports:
+      - "80:80"                      # needed for the ACME HTTP challenge and the HTTP->HTTPS redirect
+      - "443:443"
+      - "443:443/udp"                # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data             # issued certificates – keep this volume or you re-issue on every restart
+      - caddy_config:/config
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

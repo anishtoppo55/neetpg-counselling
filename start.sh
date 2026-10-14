@@ -11,6 +11,9 @@
 #   ./start.sh --status | --logs [svc] | --stop | --down
 #   ./start.sh --help
 #
+# This starts the DEVELOPMENT stack. For the production stack (Caddy + HTTPS, nothing but port 443
+# published) and for deploying it to a small VM, see ./deploy/lightsail.sh and docs/deploy-lightsail.md.
+#
 # Everything binds to 127.0.0.1 only: this stack has no authentication (Phase 1).
 # ---------------------------------------------------------------------------
 set -Eeuo pipefail
