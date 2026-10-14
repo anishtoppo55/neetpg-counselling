@@ -63,11 +63,15 @@ services:
     healthCheckPath: /api/ping         # static route, no database needed
     autoDeployTrigger: commit
     envVars:
-      - key: API_HOST                  # blueprints inject a bare hostname; lib/api.ts prefixes https://
-        fromService:
-          name: neetpg-api
-          type: web
-          property: host
+      # The API's PUBLIC base URL, e.g. https://neetpg-api-xxxx.onrender.com
+      #
+      # This has to be set by hand in the Render dashboard (sync: false keeps the blueprint from overwriting
+      # it). A blueprint cannot supply it: `fromService` only exposes a service's INTERNAL hostname
+      # (host / hostport), and a free service cannot receive private-network requests — so an internal
+      # address here fails with "fetch failed" in the dashboard.
+      # On a paid plan, make the API a private service and use `fromService … property: hostport` instead.
+      - key: API_BASE_INTERNAL
+        sync: false
       - key: API_TOKEN                 # same secret as the API
         fromService:
           name: neetpg-api

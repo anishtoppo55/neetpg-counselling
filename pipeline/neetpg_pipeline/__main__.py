@@ -26,10 +26,18 @@ def _print_report(rep: dict) -> None:
 
 
 def _save_report(rep: dict) -> str:
-    settings.REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    path = settings.REPORT_DIR / f"import_{rep['year']}_{datetime.now():%Y%m%d_%H%M%S}.json"
-    path.write_text(json.dumps(rep, indent=2, default=str))
-    return str(path)
+    """Write the validation report next to the other reports.
+
+    Never fatal: the report is a convenience copy (the same JSON is stored in import_run.report), so a
+    read-only or missing REPORT_DIR must not fail an import that already succeeded.
+    """
+    try:
+        settings.REPORT_DIR.mkdir(parents=True, exist_ok=True)
+        path = settings.REPORT_DIR / f"import_{rep['year']}_{datetime.now():%Y%m%d_%H%M%S}.json"
+        path.write_text(json.dumps(rep, indent=2, default=str))
+        return str(path)
+    except OSError as exc:
+        return f'not written ({exc.strerror}: {settings.REPORT_DIR}) – also stored in the import_run table'
 
 
 def cmd_migrate(_args) -> int:

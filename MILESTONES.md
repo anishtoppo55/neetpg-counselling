@@ -259,6 +259,12 @@ surfaced as `[Errno -2] Name or service not known` and a health-check timeout. T
 explicit region, the health check points at a new liveness endpoint (`/api/live`) so a database outage or the
 free database expiring cannot block a deploy, and `/` answers GET and HEAD without the token for Render's port probe.
 
+**Second deploy issue (fixed):** the blueprint wired the dashboard to the API with
+`fromService … property: host`, but for web services that property returns the *internal* hostname, and a free
+service cannot receive private-network requests — the dashboard failed with `fetch failed`. On the free tier the
+API's public URL must be set by hand as `API_BASE_INTERNAL` (`sync: false` in the blueprint, so re-syncs do not
+clobber it). The in-app error panel now tells you exactly that when the base URL is not local.
+
 **Still to do for real hosting:** paid plans (API as a private service, no cold starts), non-expiring Postgres
 with backups, rate limiting, and authentication once shortlists become per-user.
 

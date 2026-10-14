@@ -11,3 +11,4 @@ node_modules/
 # official source PDFs: ~150 MB, re-downloadable with scripts/fetch_mcc_documents.py
 # (manifest.csv is kept, so provenance stays in git)
 data/raw/**/*.pdf
+*.tsbuildinfo

@@ -51,8 +51,19 @@ prefix both `rootDir` values in `render.yaml` with it.
 1. Render dashboard → **New** → **Blueprint**.
 2. Pick the repository. Render reads `render.yaml` and lists the database and two services.
 3. **Apply**. The first build takes roughly 5–10 minutes (two Docker images).
+4. **Tell the dashboard where the API is.** Copy the API's public URL from its service page, then
+   `neetpg-web` → **Environment** → add:
 
-Render generates `API_TOKEN` once and copies it into both services, so you never type it.
+   | Key | Value |
+   |---|---|
+   | `API_BASE_INTERNAL` | `https://neetpg-api-xxxx.onrender.com` |
+
+   Save; the dashboard redeploys. This one variable cannot come from the blueprint: `fromService` only exposes a
+   service's **internal** hostname (`host` / `hostport`), and a free service cannot *receive* private-network
+   requests — so an internal address produces `fetch failed` in the dashboard. It is declared `sync: false` so
+   re-syncing the blueprint will not overwrite what you set.
+
+Render generates `API_TOKEN` once and copies it into both services, so you never type that one.
 
 ## 3. Load the counselling data
 
@@ -64,21 +75,28 @@ all the usual validation still applies.
 
 ```bash
 cd counselling_platform
-RENDER_DB='postgresql://USER:PASSWORD@HOST.render.com/neetpg?sslmode=require'
+# keep the credential out of your shell history: store it once, readable only by you
+umask 077 && printf '%s' 'postgresql://USER:PASSWORD@HOST.singapore-postgres.render.com/DBNAME?sslmode=require' > ~/.render_db.url
 
-docker run --rm -e DATABASE_URL="$RENDER_DB" \
-  -v "$PWD/data/raw:/data/raw:ro" -v "$PWD/data/cache:/data/cache" \
-  neetpg-pipeline:dev migrate
+run() {                     # all three mounts matter: PDFs in, parse cache, validation reports out
+  docker run --rm -e DATABASE_URL="$(cat ~/.render_db.url)" \
+    -v "$PWD/data/raw:/data/raw:ro" \
+    -v "$PWD/data/cache:/data/cache" \
+    -v "$PWD/data/reports:/data/reports" \
+    neetpg-pipeline:dev "$@"
+}
 
-docker run --rm -e DATABASE_URL="$RENDER_DB" \
-  -v "$PWD/data/raw:/data/raw:ro" -v "$PWD/data/cache:/data/cache" \
-  neetpg-pipeline:dev import --year 2025 --year 2024
-
-docker run --rm -e DATABASE_URL="$RENDER_DB" neetpg-pipeline:dev status
+run migrate
+run import --year 2025 --year 2024
+run status
 ```
 
-`sslmode=require` is needed for external connections. If `neetpg-pipeline:dev` does not exist yet, build it with
-`docker compose build pipeline`.
+`sslmode=require` is needed for external connections — without it the connection is refused. If
+`neetpg-pipeline:dev` does not exist yet, build it with `docker compose build pipeline`.
+
+Each year takes a few minutes: the PDFs are parsed locally and the rows are inserted across the network
+(about 4 minutes per year from India to Singapore). The import is one transaction per year, so a dropped
+connection leaves the previous data intact — just re-run it.
 
 The database ends up around 115 MB, well inside the 1 GB limit. Expect a few minutes — the PDFs are parsed locally
 and the rows are inserted over the network.
@@ -135,7 +153,13 @@ separate: re-run step 3 whenever you import another year or re-parse a document.
 When the demo stops being a demo:
 
 1. Put the API on a paid plan and change `type: web` to `type: pserv` so it has no public URL; then drop
-   `API_TOKEN` and set `API_BASE_INTERNAL` to the private address.
+   `API_TOKEN` and wire the address automatically, which now works because a paid private service *can* receive
+   private-network traffic:
+
+   ```yaml
+   - key: API_BASE_INTERNAL
+     fromService: { name: neetpg-api, type: pserv, property: hostport }   # prefix with http:// in code
+   ```
 2. Put the dashboard on a paid plan to remove cold starts.
 3. Upgrade Postgres so it does not expire, and take backups.
 4. Add authentication if shortlists become per-user (Milestone 6 in `MILESTONES.md`).
