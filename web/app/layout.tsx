@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Sidebar } from '@/components/shell';
@@ -9,6 +9,16 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swa
 export const metadata: Metadata = {
   title: 'NEET PG Counselling Intelligence',
   description: 'Historical MCC allotment cut-offs and a college predictor. Estimates only, not guarantees.',
+  // Most visitors arrive on a phone, and the content is derived from official PDFs – keep it out of search.
+  robots: { index: false, follow: false },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  // Deliberately no maximumScale / userScalable:false. Pinch-zoom is the main accessibility tool on a
+  // phone for dense tables, and blocking it fails WCAG 1.4.4.
+  themeColor: '#4f46e5',
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -28,7 +38,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                                    focus:rounded-lg focus:bg-white focus:px-3 focus:py-2 focus:shadow-pop">
           Skip to content
         </a>
-        <div className="flex min-h-screen">
+        {/*
+          `lg:flex`, not `flex`. The Sidebar renders two siblings: the desktop rail (hidden below lg) and
+          the mobile top bar (hidden from lg up). With a plain `flex` the mobile bar became a *column* in a
+          horizontal row next to <main>, so below 1024px the bar consumed the width and the content was
+          squeezed to a sliver or pushed off-screen entirely. Below lg this must be normal block flow.
+        */}
+        <div className="min-h-screen lg:flex">
           <Sidebar year={years[0] ?? 0} years={years} dataVersion={dataVersion} />
           <main id="main" className="min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-8">{children}</main>
         </div>

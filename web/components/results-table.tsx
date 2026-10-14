@@ -4,8 +4,40 @@ import { catLabel, num, rank as fmtRank } from '@/lib/format';
 import type { SearchParams } from '@/lib/query';
 import { patchUrl } from '@/lib/query';
 import { SortSelect } from './sort-select';
-import { Card, CardHeader, EmptyState, MiniBar, Pagination, Pill, SortLink, StatusChip } from './ui';
+import {
+  Card, CardHeader, CardListView, EmptyState, MiniBar, Pagination, Pill, RecordCard, SortLink, StatusChip,
+  TableView,
+} from './ui';
 import { IconDownload, IconPrint } from './icons';
+
+/** Closing ranks for the rounds after the first, as used in both the table cell and the mobile card. */
+function LaterRounds({ option }: { option: Option }) {
+  if (option.rounds.length <= 1) return <span className="text-ink-faint">–</span>;
+  return (
+    <ul className="space-y-0.5 text-xs text-ink-soft">
+      {option.rounds.slice(1).map((rc) => (
+        <li key={rc.round}>
+          <span className="text-ink-faint">{rc.round}:</span> {fmtRank(rc.best_close)}
+          {rc.best_category ? ` (${catLabel(rc.best_category)})` : ''}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Desirability({ option }: { option: Option }) {
+  return (
+    <>
+      <div className="flex items-center gap-2">
+        <MiniBar value={option.desirability} max={100} />
+        <span className="text-xs font-medium tabular-nums">{option.desirability.toFixed(0)}</span>
+      </div>
+      {option.branch_median_air ? (
+        <p className="mt-1 text-xs text-ink-faint">branch median AIR {fmtRank(Math.round(option.branch_median_air))}</p>
+      ) : null}
+    </>
+  );
+}
 
 export function ResultsTable({ options, total, limit, offset, sort, sortOptions, sp, myRank, roundCodes }: {
   options: Option[]; total: number; limit: number; offset: number;
@@ -18,12 +50,15 @@ export function ResultsTable({ options, total, limit, offset, sort, sortOptions,
         id="results"
         title="Matching options"
         subtitle={`${num(total)} college × course options · ${sortOptions[sort] ?? sort}`}
-        actions={<>
-          <SortSelect sp={sp} value={sort} options={sortOptions} />
-          <Link className="btn-ghost" href={`/export${patchUrl(sp, { offset: undefined, limit: undefined })}`}>
-            <IconDownload className="h-4 w-4" /> Export CSV
-          </Link>
-        </>}
+        /* Stacked on a phone: sharing one row truncated the sort labels to "Most in-deman…". */
+        actions={
+          <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-end">
+            <SortSelect sp={sp} value={sort} options={sortOptions} />
+            <Link className="btn-ghost" href={`/export${patchUrl(sp, { offset: undefined, limit: undefined })}`}>
+              <IconDownload className="h-4 w-4" /> Export CSV
+            </Link>
+          </div>
+        }
       />
       {options.length === 0 ? (
         <EmptyState title="No options match these filters">
@@ -31,7 +66,56 @@ export function ResultsTable({ options, total, limit, offset, sort, sortOptions,
         </EmptyState>
       ) : (
         <>
-          <div className="overflow-x-auto">
+          {/* Phones and small tablets: one card per option. Same data, no sideways scrolling. */}
+          <CardListView label={`Matching options for AIR ${myRank}`}>
+            {options.map((o) => (
+              <RecordCard
+                key={`m-${o.institute.id}-${o.course.id}`}
+                title={o.institute.short_name}
+                href={`/colleges/${o.institute.id}`}
+                subtitle={`${o.institute.state ?? 'State not in address'}${
+                  o.institute_median_air ? ` · median AIR ${fmtRank(Math.round(o.institute_median_air))}` : ''}`}
+                badge={<StatusChip status={o.status} withHelp />}
+                fields={[
+                  {
+                    label: 'Course', wide: true,
+                    value: (
+                      <>
+                        <span className="font-medium">{o.course.branch}</span>
+                        <span className="ml-2 inline-flex flex-wrap items-center gap-1 text-xs text-ink-faint">
+                          <Pill>{o.course.degree}</Pill>
+                          <span title={o.course.name}>{o.course.code}</span>
+                        </span>
+                      </>
+                    ),
+                  },
+                  {
+                    label: `${firstRound} closing`,
+                    value: (
+                      <>
+                        <span className="font-medium tabular-nums">{fmtRank(o.rounds[0]?.best_close ?? null)}</span>
+                        {o.rounds[0]?.best_category ? (
+                          <p className="text-xs text-ink-faint">{catLabel(o.rounds[0].best_category!)} seat</p>
+                        ) : null}
+                        {o.ratio_first_round != null ? (
+                          <p className="text-xs text-ink-faint">{o.ratio_first_round.toFixed(2)}× your rank</p>
+                        ) : null}
+                      </>
+                    ),
+                  },
+                  { label: 'Later rounds', value: <LaterRounds option={o} /> },
+                  { label: 'Desirability', value: <Desirability option={o} />, wide: true },
+                ]}
+              >
+                <details className="mt-2">
+                  <summary className="summary-tap px-0 text-xs font-medium text-brand-700">Why this label?</summary>
+                  <p className="text-xs text-ink-soft">{o.reason}</p>
+                </details>
+              </RecordCard>
+            ))}
+          </CardListView>
+
+          <TableView>
             <table className="w-full border-collapse">
               <caption className="sr-only">
                 Historical college and course options for AIR {myRank}, with classification, closing ranks per round and desirability.
@@ -90,32 +174,14 @@ export function ResultsTable({ options, total, limit, offset, sort, sortOptions,
                           <p className="text-xs text-ink-faint">{o.ratio_first_round.toFixed(2)}× your rank</p>
                         ) : null}
                       </td>
-                      <td className="td">
-                        <ul className="space-y-0.5 text-xs text-ink-soft">
-                          {o.rounds.slice(1).map((rc) => (
-                            <li key={rc.round}>
-                              <span className="text-ink-faint">{rc.round}:</span> {fmtRank(rc.best_close)}
-                              {rc.best_category ? ` (${catLabel(rc.best_category)})` : ''}
-                            </li>
-                          ))}
-                          {o.rounds.length <= 1 ? <li className="text-ink-faint">–</li> : null}
-                        </ul>
-                      </td>
-                      <td className="td">
-                        <div className="flex items-center gap-2">
-                          <MiniBar value={o.desirability} max={100} />
-                          <span className="text-xs font-medium tabular-nums">{o.desirability.toFixed(0)}</span>
-                        </div>
-                        {o.branch_median_air ? (
-                          <p className="mt-1 text-xs text-ink-faint">branch median AIR {fmtRank(Math.round(o.branch_median_air))}</p>
-                        ) : null}
-                      </td>
+                      <td className="td"><LaterRounds option={o} /></td>
+                      <td className="td"><Desirability option={o} /></td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-          </div>
+          </TableView>
           <Pagination total={total} limit={limit} offset={offset} label="options"
                       makeHref={(o) => `${patchUrl(sp, { offset: o })}#results`} />
           <div className="no-print flex items-center gap-2 border-t border-slate-100 px-4 py-3 text-xs text-ink-faint sm:px-5">

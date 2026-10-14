@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import {
   Bar, BarChart, Cell, Legend, Line, LineChart, Pie, PieChart, ReferenceLine, ResponsiveContainer,
   Tooltip, XAxis, YAxis,
@@ -8,6 +9,30 @@ import { STATUS_META, nf } from '@/lib/format';
 import type { Status } from '@/lib/api';
 
 const axis = { stroke: '#94a3b8', fontSize: 11 };
+
+/**
+ * Recharts needs pixel numbers for axis widths, which CSS breakpoints cannot supply. A 150 px category
+ * axis on a 390 px screen left under 200 px for the bars themselves, so the widths are chosen here.
+ *
+ * Starts `false` so the server-rendered markup is the narrow layout, then upgrades after mount; that keeps
+ * hydration consistent and means a phone never briefly renders the desktop sizing.
+ */
+function useIsWide(query = '(min-width: 640px)') {
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    setWide(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setWide(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, [query]);
+  return wide;
+}
+
+/** Keeps long branch names from being clipped to nothing on a narrow category axis. */
+const clip = (max: number) => (v: string) => (v.length > max ? `${v.slice(0, max - 1)}…` : v);
+
+const compactRank = (v: number) => (v >= 1000 ? `${Math.round(v / 1000)}k` : String(v));
 const tooltipStyle = {
   contentStyle: { borderRadius: 12, border: '1px solid #e2e8f0', boxShadow: '0 12px 32px -12px rgba(15,23,42,.28)', fontSize: 12 },
   labelStyle: { color: '#0f172a', fontWeight: 600 },
@@ -50,12 +75,14 @@ export function StatusDonut({ data, achievableShare }:
 /** Stacked bars: achievable options per branch (one bar per branch, segments per classification). */
 export function BranchStack({ data, statuses }:
   { data: { branch: string; [k: string]: number | string }[]; statuses: Status[] }) {
+  const wide = useIsWide();
   return (
-    <div className="h-72 w-full">
+    <div className="h-80 w-full sm:h-72">
       <ResponsiveContainer>
-        <BarChart data={data} layout="vertical" margin={{ left: 8, right: 16, top: 4, bottom: 4 }}>
+        <BarChart data={data} layout="vertical" margin={{ left: 0, right: 12, top: 4, bottom: 4 }}>
           <XAxis type="number" {...axis} allowDecimals={false} />
-          <YAxis type="category" dataKey="branch" width={150} {...axis} interval={0} />
+          <YAxis type="category" dataKey="branch" width={wide ? 150 : 88} {...axis} interval={0}
+                 tickFormatter={wide ? undefined : clip(13)} />
           <Tooltip {...tooltipStyle} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           {statuses.map((s) => (
@@ -74,9 +101,9 @@ export function RoundTrend({ data, myRank, series }:
   return (
     <div className="h-64 w-full">
       <ResponsiveContainer>
-        <LineChart data={data} margin={{ left: 8, right: 16, top: 8, bottom: 4 }}>
+        <LineChart data={data} margin={{ left: 0, right: 12, top: 8, bottom: 4 }}>
           <XAxis dataKey="round" {...axis} />
-          <YAxis {...axis} tickFormatter={(v) => (v >= 1000 ? `${Math.round(v / 1000)}k` : String(v))} />
+          <YAxis {...axis} width={44} tickFormatter={compactRank} />
           <Tooltip {...tooltipStyle} formatter={(v: number) => nf.format(v)} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           {myRank ? (
@@ -95,12 +122,14 @@ export function RoundTrend({ data, myRank, series }:
 
 /** Horizontal bars of branch demand (median AIR in round 1). */
 export function DemandBars({ data }: { data: { branch: string; median: number; p25: number }[] }) {
+  const wide = useIsWide();
   return (
-    <div style={{ height: Math.max(240, data.length * 22) }} className="w-full">
+    <div style={{ height: Math.max(240, data.length * (wide ? 22 : 26)) }} className="w-full">
       <ResponsiveContainer>
-        <BarChart data={data} layout="vertical" margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
-          <XAxis type="number" {...axis} tickFormatter={(v) => (v >= 1000 ? `${Math.round(v / 1000)}k` : String(v))} />
-          <YAxis type="category" dataKey="branch" width={170} {...axis} interval={0} />
+        <BarChart data={data} layout="vertical" margin={{ left: 0, right: wide ? 24 : 12, top: 4, bottom: 4 }}>
+          <XAxis type="number" {...axis} tickFormatter={compactRank} />
+          <YAxis type="category" dataKey="branch" width={wide ? 170 : 96} {...axis} interval={0}
+                 tickFormatter={wide ? undefined : clip(14)} />
           <Tooltip {...tooltipStyle} formatter={(v: number, n) => [nf.format(v), n === 'median' ? 'Median AIR' : '25th percentile AIR']} />
           <Bar dataKey="median" name="median" fill="#4f46e5" radius={[0, 4, 4, 0]} isAnimationActive={false} maxBarSize={14} />
         </BarChart>

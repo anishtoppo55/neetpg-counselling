@@ -1,6 +1,8 @@
 import { ApiErrorPanel } from '@/components/api-error';
 import { PageHeader } from '@/components/shell';
-import { Card, CardHeader, Notice, Pill, StatusChip } from '@/components/ui';
+import {
+  Card, CardHeader, CardListView, Notice, Pill, RecordCard, StatusChip, TableView,
+} from '@/components/ui';
 import { STATUS_ORDER, getMeta, getYears } from '@/lib/api';
 import { STATUS_META, catLabel } from '@/lib/format';
 
@@ -122,7 +124,26 @@ export default async function AboutPage() {
 
         <Card>
           <CardHeader title="Source documents" subtitle={`${meta.sources.length} official PDFs, verified by SHA-256 checksum`} />
-          <div className="overflow-x-auto">
+          <CardListView label="Source documents">
+            {meta.sources.map((s) => (
+              <RecordCard
+                key={`m-${s.path}`}
+                title={s.url ? (
+                  <span className="text-brand-700">{s.title ?? s.path}</span>
+                ) : (s.title ?? s.path)}
+                href={s.url ?? undefined}
+                external
+                subtitle={s.path}
+                badge={<Pill>{s.kind}</Pill>}
+                fields={[
+                  { label: 'Year', value: s.year ?? 'all years' },
+                  { label: 'SHA-256', value: <span className="font-mono text-xs text-ink-faint">{s.sha256.slice(0, 12)}…</span> },
+                ]}
+              />
+            ))}
+          </CardListView>
+
+          <TableView>
             <table className="w-full border-collapse">
               <thead className="bg-slate-50/80">
                 <tr>
@@ -147,7 +168,7 @@ export default async function AboutPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableView>
         </Card>
       </div>
     </>

@@ -4,7 +4,7 @@ import { ApiErrorPanel } from '@/components/api-error';
 import { RoundTrend } from '@/components/charts';
 import { IconArrowRight } from '@/components/icons';
 import { PageHeader } from '@/components/shell';
-import { Card, CardHeader, EmptyState, Pill } from '@/components/ui';
+import { Card, CardHeader, CardListView, EmptyState, Pill, RecordCard, TableView } from '@/components/ui';
 import { ApiError, getCollege, getYears, type CollegeCourse } from '@/lib/api';
 import { catLabel, first, int, num, rank as fmtRank } from '@/lib/format';
 import type { SearchParams } from '@/lib/query';
@@ -126,7 +126,39 @@ export default async function CollegePage({ params, searchParams }:
             <Card>
               <CardHeader title={`All courses – ${catLabel(tableCat)} seats`}
                           subtitle={`Closing rank per round (${quota} quota, ${yearShown}). “–” means no such seat was allotted in that round.`} />
-              <div className="overflow-x-auto">
+              <CardListView label={`Courses with ${catLabel(tableCat)} seats`}>
+                {inQuota.map((c) => {
+                  const seats = c.seat_matrix_round1
+                    .filter((s) => s.quota === quota && (s.seat_category === tableCat || s.seat_category === null))
+                    .reduce((sum, s) => sum + s.seats, 0);
+                  return (
+                    <RecordCard
+                      key={`m-${c.course.code}`}
+                      title={c.course.branch}
+                      subtitle={`${c.course.degree} · ${c.course.code} · ${c.course.group}`}
+                      fields={[
+                        ...roundCodes.map((r) => {
+                          const cut = c.cutoffs.find((x) => x.round === r && x.seat_category === tableCat);
+                          return {
+                            label: `${r} closing`,
+                            value: cut ? (
+                              <>
+                                <span className="font-medium tabular-nums">{fmtRank(cut.closing_rank)}</span>
+                                <p className="text-xs text-ink-faint">
+                                  opened {fmtRank(cut.opening_rank)} · {cut.seats_allotted} seat{cut.seats_allotted === 1 ? '' : 's'}
+                                </p>
+                              </>
+                            ) : <span className="text-ink-faint">–</span>,
+                          };
+                        }),
+                        { label: 'R1 seats offered', value: <span className="tabular-nums">{seats ? num(seats) : <span className="text-ink-faint">–</span>}</span> },
+                      ]}
+                    />
+                  );
+                })}
+              </CardListView>
+
+              <TableView>
                 <table className="w-full border-collapse">
                   <thead className="bg-slate-50/80">
                     <tr>
@@ -167,7 +199,7 @@ export default async function CollegePage({ params, searchParams }:
                     })}
                   </tbody>
                 </table>
-              </div>
+              </TableView>
               <p className="border-t border-slate-100 px-4 py-3 text-xs text-ink-faint sm:px-5">
                 Seats offered come from the Round-1 seat matrix and are only shown where that matrix could be linked to this
                 institute. Use the <Link className="text-brand-700 hover:underline" href="/cutoffs">cut-off explorer <IconArrowRight className="inline h-3 w-3" /></Link> for

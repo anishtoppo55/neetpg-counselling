@@ -62,9 +62,9 @@ export function PredictForm({ q, meta, years, branches, states, yearInUse }: {
           <legend className="label">Rounds to consider <span className="font-normal text-ink-faint">(status is based on the first)</span></legend>
           <div className="flex flex-wrap gap-2">
             {roundsOfYear.map((r) => (
-              <label key={r.code} className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 py-1.5 text-sm has-[:checked]:border-brand-300 has-[:checked]:bg-brand-50">
+              <label key={r.code} className="check">
                 <input type="checkbox" name="rounds" value={r.code} defaultChecked={chosenRounds.includes(r.code)}
-                       className="h-4 w-4 rounded border-slate-300 text-brand-600" />
+                       className="check-box" />
                 {r.name}{r.kind === 'stray' ? <Pill tone="amber">stray</Pill> : null}
               </label>
             ))}
@@ -72,8 +72,8 @@ export function PredictForm({ q, meta, years, branches, states, yearInUse }: {
         </fieldset>
 
         <details className="rounded-xl border border-slate-200 bg-slate-50/60" open={Boolean(b.branches || b.states || b.groups || b.degrees)}>
-          <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-ink-soft">
-            <span className="inline-flex items-center gap-2"><IconFilter className="h-4 w-4" /> Preferences
+          <summary className="summary-tap">
+            <span className="inline-flex flex-wrap items-center gap-2"><IconFilter className="h-4 w-4" /> Preferences
               {b.branches?.length || b.states?.length ? <Pill tone="brand">{(b.branches?.length ?? 0) + (b.states?.length ?? 0)} selected</Pill> : null}
             </span>
           </summary>
@@ -88,7 +88,7 @@ export function PredictForm({ q, meta, years, branches, states, yearInUse }: {
         </details>
 
         <details className="rounded-xl border border-slate-200 bg-slate-50/60" open={q.thresholdsChanged}>
-          <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-ink-soft">
+          <summary className="summary-tap gap-2">
             Classification thresholds {q.thresholdsChanged ? <Pill tone="amber">customised</Pill> : null}
           </summary>
           <div className="border-t border-slate-200 p-3">
@@ -118,11 +118,10 @@ export function PredictForm({ q, meta, years, branches, states, yearInUse }: {
           <legend className="label">Show classifications</legend>
           <div className="flex flex-wrap gap-2">
             {STATUS_ORDER.map((s) => (
-              <label key={s} className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 py-1.5 text-sm has-[:checked]:border-brand-300 has-[:checked]:bg-brand-50"
-                     title={STATUS_META[s].help}>
+              <label key={s} className="check" title={STATUS_META[s].help}>
                 <input type="checkbox" name="statuses" value={s} defaultChecked={q.statuses.includes(s as Status)}
-                       className="h-4 w-4 rounded border-slate-300 text-brand-600" />
-                <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ background: STATUS_META[s].color }} />
+                       className="check-box" />
+                <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full" style={{ background: STATUS_META[s].color }} />
                 {STATUS_META[s].label}
               </label>
             ))}
@@ -146,12 +145,14 @@ function CheckGroup({ legend, name, values, selected, hint, columns = false }: {
     <fieldset>
       <legend className="label">{legend}</legend>
       {hint ? <p className="mb-1 text-xs text-ink-faint">{hint}</p> : null}
-      <div className={columns ? 'grid max-h-48 gap-1 overflow-y-auto rounded-lg border border-slate-200 bg-white p-2 sm:grid-cols-2 lg:grid-cols-3'
+      {/* The long lists (branch, state) keep their own scroll area, taller on a phone so the rows can be
+          finger-sized without the box swallowing the page. */}
+      <div className={columns ? 'grid max-h-64 gap-1 overflow-y-auto overscroll-contain rounded-lg border border-slate-200 bg-white p-2 sm:max-h-48 sm:grid-cols-2 lg:grid-cols-3'
                               : 'flex flex-wrap gap-2'}>
         {values.map((v) => (
-          <label key={v} className="inline-flex cursor-pointer items-center gap-2 text-sm text-ink-soft">
+          <label key={v} className="check-row">
             <input type="checkbox" name={name} value={v} defaultChecked={selected?.includes(v) ?? false}
-                   className="h-4 w-4 rounded border-slate-300 text-brand-600" />
+                   className="check-box" />
             <span className="truncate" title={v}>{v}</span>
           </label>
         ))}

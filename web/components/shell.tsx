@@ -74,28 +74,38 @@ export function Sidebar({ year, years, dataVersion }: { year: number; years: num
             <br />Viewing: <strong className="text-ink">{year}</strong>
             <br />Import #{dataVersion}
           </p>
-          <Link href="/about" className="mt-2 inline-block text-xs font-medium text-brand-700 hover:underline">
+          <Link href="/about" className="link-tap mt-1 text-xs font-medium text-brand-700 hover:underline">
             Sources &amp; limitations
           </Link>
         </div>
       </aside>
 
-      {/* mobile / tablet top bar */}
+      {/*
+        Mobile / tablet top bar. Rendered as a block element (the parent is only `flex` from lg up), so it
+        sits above the content rather than beside it. Sticky, because the nav is the only way between pages
+        on a phone.
+      */}
       <div className="no-print sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur lg:hidden">
-        <div className="flex items-center gap-2 px-4 py-3">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-white">
-            <IconLayers className="h-4 w-4" />
-          </span>
-          <span className="text-sm font-semibold">NEET PG Counselling</span>
-          <span className="ml-auto text-xs text-ink-faint">{year}</span>
+        {/* Tighter vertical padding than the link heights, so 44px tap targets do not make the bar tall. */}
+        <div className="flex items-center gap-2 px-4 py-1">
+          <Link href="/" className="flex min-h-11 min-w-0 items-center gap-2">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand-600 text-white">
+              <IconLayers className="h-4 w-4" />
+            </span>
+            <span className="truncate text-sm font-semibold">NEET PG Counselling</span>
+          </Link>
+          <Link href="/about" className="ml-auto flex min-h-11 shrink-0 items-center"
+                aria-label={`Viewing ${year} data, import ${dataVersion}. Sources and limitations.`}>
+            <span className="chip bg-slate-100 px-2.5 py-1 text-ink-soft">{year}</span>
+          </Link>
         </div>
-        <nav aria-label="Main" className="flex gap-1 overflow-x-auto px-2 pb-2">
+        <nav aria-label="Main" className="rail-x px-2 pb-2">
           {NAV.map(({ href, label, icon: Icon }) => {
             const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
             return (
               <Link key={href} href={href} aria-current={active ? 'page' : undefined}
-                    className={`nav-item shrink-0 ${active ? 'nav-item-active' : ''}`}>
-                <Icon className="h-4 w-4" />{label}
+                    className={`nav-item shrink-0 snap-start whitespace-nowrap ${active ? 'nav-item-active' : ''}`}>
+                <Icon className="h-4 w-4 shrink-0" />{label}
               </Link>
             );
           })}
@@ -109,12 +119,15 @@ export function PageHeader({ title, meta, actions, children }:
   { title: string; meta?: ReactNode; actions?: ReactNode; children?: ReactNode }) {
   return (
     <header className="mb-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">{title}</h1>
           {meta ? <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink-soft">{meta}</div> : null}
         </div>
-        {actions ? <div className="no-print flex flex-wrap items-center gap-2">{actions}</div> : null}
+        {/* Actions stretch to full width on a phone so they are easy to hit, and shrink to inline on sm+. */}
+        {actions ? (
+          <div className="no-print flex flex-wrap items-center gap-2 [&>*]:flex-1 sm:[&>*]:flex-none">{actions}</div>
+        ) : null}
       </div>
       {children}
     </header>

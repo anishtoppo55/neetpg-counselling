@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { ApiErrorPanel } from '@/components/api-error';
 import { PageHeader } from '@/components/shell';
-import { Card, CardHeader, EmptyState, Pagination, Pill } from '@/components/ui';
+import {
+  Card, CardHeader, CardListView, EmptyState, Pagination, Pill, RecordCard, TableView,
+} from '@/components/ui';
 import { getBranches, getCutoffs, getMeta, getStates, getYears } from '@/lib/api';
 import { catLabel, first, int, num, rank as fmtRank } from '@/lib/format';
 import { patchUrl, type SearchParams } from '@/lib/query';
@@ -107,7 +109,26 @@ export default async function CutoffsPage({ searchParams }: { searchParams: Sear
             <EmptyState title="No rows match these filters">Widen the rank range or clear a filter.</EmptyState>
           ) : (
             <>
-              <div className="overflow-x-auto">
+              <CardListView label="Cut-off rows">
+                {data.items.map((r, i) => (
+                  <RecordCard
+                    key={`m-${r.round_code}-${r.college_id}-${r.course_code}-${r.seat_category_code}-${i}`}
+                    title={r.college}
+                    href={`/colleges/${r.college_id}?year=${r.year}`}
+                    subtitle={r.state ?? 'State not in address'}
+                    badge={<Pill>{r.round_code}</Pill>}
+                    fields={[
+                      { label: 'Course', wide: true, value: <>{r.branch} <span className="text-xs text-ink-faint">{r.degree} · {r.course_code}</span></> },
+                      { label: 'Seat category', value: catLabel(r.seat_category_code) },
+                      { label: 'Seats allotted', value: <span className="tabular-nums">{r.seats_allotted}</span> },
+                      { label: 'Opening rank', value: <span className="tabular-nums">{fmtRank(r.opening_rank)}</span> },
+                      { label: 'Closing rank', value: <span className="font-medium tabular-nums">{fmtRank(r.closing_rank)}</span> },
+                    ]}
+                  />
+                ))}
+              </CardListView>
+
+              <TableView>
                 <table className="w-full border-collapse">
                   <thead className="bg-slate-50/80">
                     <tr>
@@ -143,7 +164,7 @@ export default async function CutoffsPage({ searchParams }: { searchParams: Sear
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </TableView>
               <Pagination total={data.total} limit={PAGE} offset={offset} label="rows"
                           makeHref={(o) => `/cutoffs${patchUrl(searchParams, { offset: o })}`} />
             </>

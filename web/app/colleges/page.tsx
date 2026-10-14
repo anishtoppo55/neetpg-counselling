@@ -2,7 +2,9 @@ import Link from 'next/link';
 import { ApiErrorPanel } from '@/components/api-error';
 import { IconArrowRight, IconSearch } from '@/components/icons';
 import { PageHeader } from '@/components/shell';
-import { Card, CardHeader, EmptyState, Pagination, Pill } from '@/components/ui';
+import {
+  Card, CardHeader, CardListView, EmptyState, Pagination, Pill, RecordCard, TableView,
+} from '@/components/ui';
 import { getBranches, getColleges, getMeta, getStates, getYears } from '@/lib/api';
 import { num } from '@/lib/format';
 import { patchUrl, type SearchParams } from '@/lib/query';
@@ -87,7 +89,29 @@ export default async function CollegesPage({ searchParams }: { searchParams: Sea
             <EmptyState title="No colleges match">Try a shorter search term or clear the filters.</EmptyState>
           ) : (
             <>
-              <div className="overflow-x-auto">
+              <CardListView label="Institutes">
+                {data.items.map((c) => (
+                  <RecordCard
+                    key={`m-${c.id}`}
+                    title={c.short_name}
+                    href={`/colleges/${c.id}?year=${data.year}`}
+                    subtitle={c.name}
+                    fields={[
+                      { label: 'State', value: c.state ?? <span className="text-ink-faint">not in address</span> },
+                      { label: 'Courses', value: <span className="tabular-nums">{c.courses}</span> },
+                      { label: 'Allotments', value: <span className="tabular-nums">{num(c.allotments)}</span> },
+                      { label: 'Quotas', value: <span className="flex flex-wrap gap-1">{c.quotas.map((qq) => <Pill key={qq}>{qq}</Pill>)}</span> },
+                    ]}
+                    action={
+                      <Link href={`/colleges/${c.id}?year=${data.year}`} className="btn-ghost">
+                        Cut-offs <IconArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                    }
+                  />
+                ))}
+              </CardListView>
+
+              <TableView>
                 <table className="w-full border-collapse">
                   <thead className="bg-slate-50/80">
                     <tr>
@@ -121,7 +145,7 @@ export default async function CollegesPage({ searchParams }: { searchParams: Sea
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </TableView>
               <Pagination total={data.total} limit={PAGE} offset={offset} label="colleges"
                           makeHref={(o) => `/colleges${patchUrl(searchParams, { offset: o })}`} />
             </>

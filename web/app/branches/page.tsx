@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ApiErrorPanel } from '@/components/api-error';
 import { DemandBars } from '@/components/charts';
 import { PageHeader } from '@/components/shell';
-import { Card, CardHeader, Pill } from '@/components/ui';
+import { Card, CardHeader, CardListView, Pill, RecordCard, TableView } from '@/components/ui';
 import { getBranches, getMeta, getYears } from '@/lib/api';
 import { first, int, num, rank as fmtRank } from '@/lib/format';
 import type { SearchParams } from '@/lib/query';
@@ -68,7 +68,28 @@ export default async function BranchesPage({ searchParams }: { searchParams: Sea
 
         <Card>
           <CardHeader title="All branches" subtitle="Seats are Round-1 allotments in the selected quota" />
-          <div className="overflow-x-auto">
+          <CardListView label="All branches">
+            {shown.map((b) => (
+              <RecordCard
+                key={`m-${b.branch}`}
+                title={b.branch}
+                subtitle={b.group}
+                fields={[
+                  { label: 'Degrees', wide: true, value: <span className="flex flex-wrap gap-1">{b.degrees.map((d) => <Pill key={d}>{d}</Pill>)}</span> },
+                  { label: 'R1 seats', value: <span className="tabular-nums">{b.demand ? num(b.demand.seats) : '–'}</span> },
+                  { label: 'Median AIR', value: <span className="tabular-nums">{b.demand ? fmtRank(Math.round(b.demand.median_air)) : '–'}</span> },
+                  { label: '25th pct AIR', value: <span className="tabular-nums">{b.demand ? fmtRank(Math.round(b.demand.p25_air)) : '–'}</span> },
+                ]}
+                action={
+                  <Link className="btn-ghost" href={`/cutoffs?year=${yearShown}&quota=${quota}&branch=${encodeURIComponent(b.branch)}`}>
+                    Cut-offs
+                  </Link>
+                }
+              />
+            ))}
+          </CardListView>
+
+          <TableView>
             <table className="w-full border-collapse">
               <thead className="bg-slate-50/80">
                 <tr>
@@ -99,7 +120,7 @@ export default async function BranchesPage({ searchParams }: { searchParams: Sea
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableView>
         </Card>
       </div>
     </>

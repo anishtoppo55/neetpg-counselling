@@ -19,7 +19,7 @@ Phase 1 (MVP) is the predictor; the Gemini assistant, hosting and accounts come 
 | 2 | Predictor API – FastAPI, classification, lookups | ✅ |
 | 3 | Frontend – Next.js dashboard, colleges, cut-offs, branches | ✅ |
 | 4 | Saved shortlist with reordering (CSV export already works) | next |
-| 6 | Hosting – Render free-tier demo blueprint (`docs/deploy-render.md`) | ✅ demo path |
+| 6 | Hosting – Render free demo (`docs/deploy-render.md`), AWS Lightsail $7 VM (`docs/deploy-lightsail.md`) | ✅ two paths |
 | 5, 7 | Counselling assistant (Gemini), accounts, more years | later |
 
 One open item: the category-eligibility rules in `pipeline/rules/eligibility.yaml` are drafted from the MCC
@@ -165,24 +165,44 @@ explanation — their cut-offs remain browsable.
 * No "government colleges only" filter yet — the data has no reliable institute-type field.
 * Shortlist saving and reordering arrives in Milestone 4.
 
-## Hosting a demo
+## Hosting
 
-`render.yaml` is a Render Blueprint that deploys the stack on Render's **free tier** for testing: free Postgres,
-the API and the dashboard. Production Dockerfiles for that are `api/Dockerfile.prod` and `web/Dockerfile.prod`
-(the plain `Dockerfile`s stay for local development).
+Both paths share the production images `api/Dockerfile.prod` and `web/Dockerfile.prod` (the plain `Dockerfile`s
+stay for local development). Neither has any user authentication — anyone with the link sees the dashboard.
 
-Because a free Render service cannot receive private-network requests, the API gets a public URL protected by a
-generated `API_TOKEN` shared with the dashboard; every request without it is rejected except the health check.
-Data is loaded by running the normal pipeline from your machine against the Render database.
+**Render free tier** — `render.yaml`, a blueprint creating free Postgres + API + dashboard. Costs nothing, but the
+free database is deleted 30 days after creation and services sleep after 15 minutes idle (~1 min cold start).
+A free Render service cannot *receive* private-network requests, so the API gets a public URL protected by a
+generated `API_TOKEN` shared with the dashboard. Walk-through: **`docs/deploy-render.md`**.
 
-Step-by-step, including the free-tier limits (database expires after 30 days, services sleep after 15 minutes):
-**`docs/deploy-render.md`**.
+**AWS Lightsail, $7/month** — one 1 GB instance running `deploy/docker-compose.prod.yml`: Postgres, the API, the
+dashboard and Caddy, which terminates HTTPS with a free Let's Encrypt certificate on a free DuckDNS hostname (no
+domain needed). Caddy is the only container with published ports, so the database and the API stay private and the
+shared secret is unnecessary. Nothing is ever built on the instance — `deploy/lightsail.sh` builds the images here
+and ships them over SSH, which is what keeps a 1 GB box viable:
+
+```bash
+cp deploy/env.prod.example deploy/.env.prod   # set SITE_HOST, TLS_EMAIL, POSTGRES_PASSWORD
+./deploy/lightsail.sh local                   # smoke-test the production stack on this machine
+./deploy/lightsail.sh bootstrap               # Docker + swap + log rotation on the instance
+./deploy/lightsail.sh deploy                  # build, ship, start, verify the public URL
+./deploy/lightsail.sh data                    # pg_dump the local database into the instance
+```
+
+Measured footprint of the running stack: 289 MiB across the four containers. Walk-through, including the console
+click-path, firewall rules, backups and troubleshooting: **`docs/deploy-lightsail.md`**.
 
 ## Security
 
 Running locally is the default and is local only. The database (`5432`), API (`8000`) and web (`3000`) ports are bound to `127.0.0.1`.
 The API has no authentication and uses read-only database sessions; the web app has no login and stores nothing.
 Do not expose these ports on a network. `.env` holds the database password and is git-ignored.
+
+The hosted deployments narrow that surface rather than closing it. On Lightsail only Caddy publishes ports, so
+Postgres and the API are unreachable from outside the box, and everything is served over HTTPS with HSTS and
+`X-Robots-Tag: noindex`. On Render the API is public and refuses any request without `X-API-Token`. Neither has
+**user** authentication: anyone with the link sees the dashboard, and there is no rate limiting. Treat a shared
+URL as semi-private. Secrets live in `deploy/.env.prod` (git-ignored, mode 600) and in Render's own env vars.
 
 ## Layout
 
@@ -208,7 +228,12 @@ counselling_platform/
   docs/api.md                                                        endpoints, classification rules, verification
   docs/frontend.md                                                   pages, design, URL state, accessibility
   docs/deploy-render.md                                              free-tier demo deployment
+  docs/deploy-lightsail.md                                           $7/month single-VM deployment
   render.yaml                                                        Render Blueprint (db + api + web)
+  deploy/
+    docker-compose.prod.yml, Caddyfile                               production stack behind automatic HTTPS
+    env.prod.example                                                 template for deploy/.env.prod
+    lightsail.sh                                                     build, ship, start, load data, check
 ```
 
 ## Adding another counselling year

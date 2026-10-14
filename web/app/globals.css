@@ -7,24 +7,78 @@
   body { @apply bg-page text-ink antialiased; }
   /* visible focus for keyboard users everywhere */
   :focus-visible { @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-white rounded-md; }
+
+  /* Long institute names have no spaces to break on and would otherwise widen the whole page on a phone. */
+  h1, h2, h3, p, td, th, dd, li, summary { overflow-wrap: break-word; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    html { scroll-behavior: auto !important; }
+  }
 }
 
 @layer components {
   .card { @apply rounded-card bg-white shadow-card border border-slate-200/70; }
   .card-pad { @apply p-4 sm:p-5; }
-  .btn { @apply inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition
-          disabled:opacity-50 disabled:pointer-events-none; }
+
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm
+          font-medium transition disabled:opacity-50 disabled:pointer-events-none; }
   .btn-ghost { @apply btn border-slate-200 bg-white text-ink-soft hover:bg-slate-50; }
   .btn-primary { @apply btn border-brand-600 bg-brand-600 text-white hover:bg-brand-700; }
+
   .field { @apply w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-ink
            placeholder:text-ink-faint focus:border-brand-400; }
   .label { @apply mb-1 block text-xs font-medium text-ink-soft; }
   .chip { @apply inline-flex items-center gap-1 rounded-pill px-2 py-0.5 text-xs font-medium; }
+
+  /* Checkbox plus its label as one target. */
+  .check { @apply inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200
+            px-3 py-1.5 text-sm has-[:checked]:border-brand-300 has-[:checked]:bg-brand-50; }
+  .check-box { @apply h-4 w-4 shrink-0 rounded border-slate-300 text-brand-600; }
+  /* Borderless variant for the long scrolling lists (branch, state). */
+  .check-row { @apply inline-flex cursor-pointer items-center gap-2 rounded-lg px-1 text-sm text-ink-soft; }
+
   .th { @apply whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-faint; }
   .td { @apply px-4 py-3 text-sm text-ink align-top; }
   .nav-item { @apply flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-ink-soft
                hover:bg-slate-100 hover:text-ink; }
   .nav-item-active { @apply bg-brand-50 text-brand-700 hover:bg-brand-50 hover:text-brand-700; }
+
+  /* Title link at the top of a record card – the main thing a thumb aims at in the mobile lists. */
+  .row-title { @apply block text-sm font-medium text-ink hover:text-brand-700; }
+
+  /* A standalone (non-prose) link that needs to be tappable. Inline links inside running text are
+     exempt from the touch-target rule and deliberately do not use this. */
+  .link-tap { @apply inline-flex items-center; }
+
+  /* Horizontal strip (the mobile nav) that scrolls with momentum and snaps, without a visible scrollbar. */
+  .rail-x { @apply flex snap-x snap-mandatory gap-1 overflow-x-auto [-webkit-overflow-scrolling:touch]
+             [scrollbar-width:none] [&::-webkit-scrollbar]:hidden; }
+
+  /* Label/value pair inside a mobile record card, replacing a table column. */
+  .dt { @apply text-xs font-medium uppercase tracking-wide text-ink-faint; }
+  .dd { @apply mt-0.5 text-sm text-ink; }
+
+  /* <summary> is a tap target, but its default line box is only about 20px tall. */
+  .summary-tap { @apply flex cursor-pointer items-center px-3 py-2 text-sm font-medium text-ink-soft; }
+}
+
+/*
+ * Touch sizing, keyed on the pointer rather than the viewport width.
+ *
+ * A width breakpoint gets this wrong in both directions: a tablet at 800px is still operated with a
+ * thumb and needs 44px targets, while a 500px-wide desktop browser window does not. `pointer: coarse`
+ * asks the real question. Targets follow WCAG 2.5.5 / the Apple HIG minimum of 44x44 CSS px.
+ */
+@media (pointer: coarse) {
+  .btn, .field, .check, .check-row, .nav-item, .summary-tap, .row-title, .link-tap { min-height: 2.75rem; }
+  .check, .check-row, .nav-item, .row-title { display: flex; align-items: center; }
+  .check-box { height: 1.25rem; width: 1.25rem; }
+  /* 16px exactly: iOS Safari zooms the whole viewport when a focused input's text is any smaller,
+     which left the user scrolled sideways with no obvious way back. */
+  .field { font-size: 1rem; }
+  /* Negative margin so a 44px title link does not add 44px to every card. */
+  .row-title { margin-top: -0.5rem; margin-bottom: -0.5rem; }
 }
 
 /* print: hide chrome, keep the table readable */

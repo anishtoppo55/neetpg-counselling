@@ -24,15 +24,15 @@ export function SortSelect({ sp, value, options }:
   }
 
   return (
-    <form method="get" action="/" className="flex items-end gap-2">
+    <form method="get" action="/" className="flex w-full items-end gap-2 sm:w-auto">
       {hidden.map(([k, v], i) => <input key={`${k}-${i}`} type="hidden" name={k} value={v} />)}
-      <div>
+      <div className="min-w-0 flex-1">
         <label className="label" htmlFor="sort">Sort by</label>
         <select
           id="sort"
           name="sort"
           defaultValue={value}
-          className="field min-w-[15rem] py-1.5"
+          className="field sm:min-w-[15rem] sm:py-1.5"
           onChange={(e) => { if (enhanced) e.currentTarget.form?.requestSubmit(); }}
         >
           {Object.entries(options).map(([k, label]) => <option key={k} value={k}>{label}</option>)}

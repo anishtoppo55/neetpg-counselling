@@ -25,7 +25,7 @@ how each milestone is judged done.
 | 3 | Frontend (profile form, results dashboard, detail pages) | 1 | ✅ Done |
 | 4 | Local shortlist and export | 1 | ⏳ Next (CSV export already shipped) |
 | 5 | Counselling Assistant (Gemini) | 2 | Later |
-| 6 | Hosting and user accounts | 2 | 🚧 Render free-tier demo done; accounts later |
+| 6 | Hosting and user accounts | 2 | 🚧 Render free demo + Lightsail $7 VM done; accounts later |
 | 7 | Expansion (more years, metadata, analyses) | 2+ | Later |
 
 Shortlist/export (originally milestone 5 in the plan) is moved into Phase 1 as milestone 4, kept local
@@ -265,8 +265,98 @@ service cannot receive private-network requests — the dashboard failed with `f
 API's public URL must be set by hand as `API_BASE_INTERNAL` (`sync: false` in the blueprint, so re-syncs do not
 clobber it). The in-app error panel now tells you exactly that when the base URL is not local.
 
-**Still to do for real hosting:** paid plans (API as a private service, no cold starts), non-expiring Postgres
-with backups, rate limiting, and authentication once shortlists become per-user.
+**Done – self-hosted path on AWS Lightsail, $7/month** (`deploy/`, `docs/deploy-lightsail.md`)
+
+The Render free tier is fine for a look but the database is deleted 30 days after creation and the services
+sleep. One small VM removes both limits for the price of a coffee, with no domain name required.
+
+* `deploy/docker-compose.prod.yml` — Postgres, API, dashboard and Caddy under the project name `neetpg-prod`
+  (a different name from the dev stack on purpose, so running it locally cannot touch dev containers or data).
+  **Caddy is the only container that publishes ports**; `db` and `api` are reachable on the Docker network only.
+  No `build:` keys: the instance never compiles anything.
+* `deploy/Caddyfile` — automatic HTTPS from Let's Encrypt, HTTP→HTTPS redirect, gzip/zstd, HSTS, `nosniff`,
+  `X-Frame-Options: DENY`, strict referrer policy, `X-Robots-Tag: noindex, nofollow`, `Server` header removed,
+  and immutable caching for `/_next/static/*`. `tls {$TLS_EMAIL:internal}` doubles as the local-test switch:
+  an address means ACME, the literal `internal` means a self-signed certificate.
+* Because the API is private, the `API_TOKEN` shared secret that the Render deployment needs is unnecessary
+  here — no page in the dashboard is rendered in the browser, so nothing outside the box ever calls the API.
+* Free hostname: **DuckDNS**. It is stable (unlike a Cloudflare quick tunnel, whose URL changes on restart) and
+  `duckdns.org` is on the Public Suffix List, so each `*.duckdns.org` name gets its own Let's Encrypt rate-limit
+  budget. `sslip.io`/`nip.io` need no signup at all but are *not* on the list, so all their users share one
+  bucket of 50 certificates per week. A Lightsail static IP never changes, so no DDNS updater is needed.
+* `deploy/lightsail.sh` — `local`/`local-down`, `bootstrap`, `build`, `ship`, `up`/`down`/`restart`, `deploy`,
+  `data`, `status`, `logs`, `check`, `ssh`.
+  * **Images are built here and shipped over SSH** (`docker save | gzip | ssh … docker load`, measured at
+    140 MB on the wire). This is the decision that makes the 1 GB plan work: a Next.js production build
+    needs far more than 1 GB and would be OOM-killed on the instance. Note that gzip barely helps on
+    Docker's containerd image store, which already saves compressed layer blobs — it is kept for older
+    daemons on the overlay2 graph driver, where saved layers are uncompressed.
+  * `bootstrap` installs Docker, adds a 2 GB swap file with `vm.swappiness=10`, and caps container logs at
+    3 × 10 MB so they cannot fill the 40 GB disk.
+  * `data` moves the database with `pg_dump --clean --if-exists` (2.4 MB gzipped, 4 s) instead of re-parsing
+    149 MB of PDFs on a 1 GB box, then restarts the API so it re-reads its data version. Repeatable.
+* Plan sizing: the $7 dual-stack bundle is 1 GB / 2 vCPU / 40 GB / 2 TB transfer (halved in Mumbai), **not**
+  the $5 one, which is 512 MB. Measured footprint of the running stack: web 120 MiB, db 91, api 64, caddy 13 —
+  289 MiB total, roughly 420 MB with Ubuntu, so 1 GB fits with no room for a second workload.
+* **Verified locally before spending anything**, with the full data (2025: 69,147 allotments, 2024: 57,733)
+  restored into the prod stack through `data --local`:
+  * every page and the example query 200 over HTTPS, `/nope` 404, `http://` 308 → `https://`;
+  * all five security headers present, `Server` stripped, `/_next/static/*` served `max-age=31536000, immutable`;
+  * CSV export 200, `text/csv`, 695 options plus the four provenance comment lines;
+  * the golden profile reproduced exactly on the production API — 520 options at institutes with a state,
+    170 Safe / 114 Good / 67 Borderline / 169 Later-round, 530 achievable including the 10 stateless
+    institutes, eligibility `['OPEN', 'ST']`, which is what `test_golden_matches_notebook` asserts;
+  * `/api/predict` byte-identical between the dev and production stacks for the same body (unfiltered total
+    695 across all six statuses; top option GOVT. MEDICAL COLLEGE, THIRUVANANTHAPURAM — M.D. General
+    Medicine, desirability 92.9, R1 close 14,515);
+  * 52 API tests pass.
+* **Caught by that local test:** using `/api/health` as the `api` container's health check deadlocks the first
+  deploy — it answers 503 until data is loaded, but data can only be loaded once the stack is up. The health
+  check now uses `/api/live`, the same liveness endpoint added after the first Render deploy timed out. The
+  lesson did not transfer automatically because the Render fix was in `render.yaml`, not in a compose file.
+
+**Deployed and verified live** at `https://ncounselling.duckdns.org` (Lightsail `ncounselling`, ap-south-1,
+$7 plan, static IP 15.206.161.215, Ubuntu 24.04.4, 2 vCPU, 909 MB RAM, 38 GB disk):
+
+* Let's Encrypt certificate issued via the `tls-alpn-01` challenge, `CN=ncounselling.duckdns.org`, valid to
+  12 Jan 2027, auto-renewing; `http://` 308 → `https://`.
+* All six pages 200, `/nope` 404, all five security headers present, `Server` stripped.
+* The golden profile reproduces exactly on the instance: 520 with-state options, 170/114/67/169, and the
+  dashboard KPIs match the local stack digit for digit (170/114/67/179/165/1,300 over 695 matching options).
+  CSV export 200 with 699 lines. `/api/health` → `data_version: 5`.
+* Ports 5432, 8000, 3000 and Caddy's admin 2019 all confirmed **unreachable from the internet**; only 80 and
+  443 answer. Every container is `restart=unless-stopped`, so a reboot recovers unattended.
+* `data` moved both years in 11 s end to end (2.4 MB gzipped dump).
+* Actual memory: containers 263 MiB (web 104, db 79, api 59, caddy 21), but the host reports 587 MB used of
+  909 with ~54 MB swap touched. Working, with little headroom — see the sizing note in the deploy doc.
+
+**Mobile pass over the dashboard** (`docs/frontend.md` → "Phones and tablets")
+
+Prompted by the first real phone visit. Two bugs, the first severe:
+
+* **The site was unusable on every phone and tablet.** `layout.tsx` wrapped the shell in
+  `<div class="flex min-h-screen">`, but `Sidebar` renders *two* siblings — the desktop rail and the mobile
+  top bar — so below `lg` the top bar became a flex column beside `<main>`. Measured at 768px: the bar took
+  612px and the content was squeezed into 155px; at 390px the content was pushed off-screen and the page
+  rendered blank. Fixed by making the row `lg:flex`, so below `lg` it is ordinary block flow.
+* **The whole document scrolled sideways at every width, including desktop.** `sr-only` is
+  `position: absolute`, and the `overflow-x-auto` table wrappers were `position: static`, so they were not
+  the absolute containing block and could not clip them. The `sr-only` helpers (`<span>Open</span>` in a
+  header cell, the table `<caption>`) resolved against the document at the table's far-right edge — x=1321
+  on `/colleges` — which set `document.scrollWidth` and added up to 297px of phantom scroll. Fixed with
+  `relative` on the wrapper. This one had been live on desktop the whole time.
+
+Then the actual responsive work: tables re-render as stacked cards below `xl`, touch sizing keyed on
+`@media (pointer: coarse)` rather than viewport width, 16px form text to stop iOS zoom-on-focus, chart axes
+sized from `matchMedia`, two-up KPI tiles, and stacking headers/pagination. Rationale for each in the
+frontend doc. Verified by a headless-Chrome audit of 6 pages × 6 viewports for overflow, tap-target size and
+text size — clean locally and against the live site, with the golden figures unchanged (520 with-state
+options, 170/114/67/169; dashboard 170/114/67/179/165/1,300 over 695; CSV 699 lines).
+
+**Still to do for real hosting:** authentication once shortlists become per-user, rate limiting (Caddy's core
+build has none; it needs a plugin or a small reverse-proxy rule), off-box backups on a schedule rather than by
+hand, and an uptime check. For the Render path specifically: paid plans would let the API be a private service
+with no cold starts and give a non-expiring Postgres.
 
 **Original plan**
 

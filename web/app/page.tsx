@@ -108,7 +108,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
               <Notice key={n} tone={n.includes('not been confirmed') ? 'warn' : 'info'}>{n}</Notice>
             ))}
 
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {/* Two tiles per row on a phone: four stacked full-width cards pushed the charts and the
+                table below three screens of scrolling. */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
               <KpiCard icon={<IconTarget className="h-5 w-5" />} label="Achievable options" tone="brand"
                        value={num(achievable)} hint={share(achievable)}
                        delta={{ text: `${num(byStatus!.reach)} reach`, dir: 'flat' }} />

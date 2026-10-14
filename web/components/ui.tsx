@@ -12,12 +12,16 @@ export function Card({ children, className = '' }: { children: ReactNode; classN
 export function CardHeader({ title, subtitle, actions, id }:
   { title: ReactNode; subtitle?: ReactNode; actions?: ReactNode; id?: string }) {
   return (
-    <header className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 px-4 py-4 sm:px-5">
-      <div>
+    <header className="flex flex-col gap-3 border-b border-slate-100 px-4 py-4 sm:flex-row sm:flex-wrap
+                       sm:items-start sm:justify-between sm:px-5">
+      <div className="min-w-0">
         <h2 id={id} className="text-base font-semibold text-ink">{title}</h2>
         {subtitle ? <p className="mt-0.5 text-sm text-ink-soft">{subtitle}</p> : null}
       </div>
-      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+      {/* Stacked and full width on a phone; inline from sm up. */}
+      {actions ? (
+        <div className="flex flex-wrap items-end gap-2 [&>*]:flex-1 sm:[&>*]:flex-none">{actions}</div>
+      ) : null}
     </header>
   );
 }
@@ -34,11 +38,12 @@ export function KpiCard({ icon, label, value, hint, delta, tone = 'brand' }: {
   return (
     <Card className="card-pad">
       <div className="flex items-start justify-between">
-        <span className={`grid h-10 w-10 place-items-center rounded-xl ${tones[tone]}`}>{icon}</span>
+        <span className={`grid h-9 w-9 place-items-center rounded-xl sm:h-10 sm:w-10 ${tones[tone]}`}>{icon}</span>
       </div>
-      <p className="mt-4 text-sm text-ink-soft">{label}</p>
+      {/* Two tiles fit side by side on a phone, so the label and value step down a size there. */}
+      <p className="mt-3 text-xs text-ink-soft sm:mt-4 sm:text-sm">{label}</p>
       <div className="mt-1 flex flex-wrap items-center gap-2">
-        <span className="text-2xl font-semibold tracking-tight">{value}</span>
+        <span className="text-xl font-semibold tracking-tight sm:text-2xl">{value}</span>
         {delta ? (
           <span className={`chip ${delta.dir === 'down' ? 'bg-rose-50 text-rose-600' : 'bg-green-50 text-green-700'}`}>
             {delta.dir === 'up' ? <IconUp className="h-3 w-3" /> : delta.dir === 'down' ? <IconDown className="h-3 w-3" /> : null}
@@ -106,17 +111,92 @@ export function Pagination({ total, limit, offset, makeHref, label = 'results' }
   const prev = Math.max(0, offset - limit);
   const next = offset + limit;
   return (
-    <nav aria-label="Pagination" className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 sm:px-5">
+    <nav aria-label="Pagination" className="flex flex-col gap-3 border-t border-slate-100 px-4 py-3
+                                            sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-5">
       <p className="text-xs text-ink-soft" aria-live="polite">
         {nf.format(from)}–{nf.format(to)} of {nf.format(total)} {label}
       </p>
-      <div className="flex items-center gap-2">
+      {/* Equal-width, thumb-sized buttons on a phone. */}
+      <div className="flex items-center gap-2 [&>*]:flex-1 sm:[&>*]:flex-none">
         {offset > 0 ? <Link className="btn-ghost" href={makeHref(prev)}>Previous</Link>
-          : <span className="btn-ghost pointer-events-none opacity-40">Previous</span>}
+          : <span className="btn-ghost pointer-events-none opacity-40" aria-hidden="true">Previous</span>}
         {next < total ? <Link className="btn-ghost" href={makeHref(next)}>Next <IconArrowRight className="h-3.5 w-3.5" /></Link>
-          : <span className="btn-ghost pointer-events-none opacity-40">Next</span>}
+          : <span className="btn-ghost pointer-events-none opacity-40" aria-hidden="true">Next</span>}
       </div>
     </nav>
+  );
+}
+
+/* ----------------------------------------------------------------- responsive data presentation
+ * These tables carry 6–8 columns of numbers. Horizontally scrolling them on a 390 px screen hides the
+ * row label as soon as you scroll, which makes the numbers meaningless. So below `lg` each row is
+ * re-rendered as a stacked card instead, and the real <table> is kept for wider screens where it is the
+ * better tool. Pages render both and let CSS pick one, which keeps everything server-rendered.
+ */
+
+/**
+ * Wraps a real <table>; visible from `lg` up only.
+ *
+ * `relative` is load-bearing. These tables contain `sr-only` helpers (`<span class="sr-only">Open</span>`
+ * in a header cell, the table <caption>), and `sr-only` is `position: absolute`. A static-positioned
+ * scroll container is not their containing block, so it cannot clip them: they resolved against the
+ * document instead and sat at the table's far-right edge, stretching the page's scrollWidth by a few
+ * hundred pixels and giving the whole document a horizontal scrollbar. Making this the containing block
+ * keeps them inside the scroll area.
+ */
+export function TableView({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <div className={`relative hidden overflow-x-auto xl:block ${className}`}>{children}</div>;
+}
+
+/**
+ * Wraps the stacked cards shown instead of the table below `xl`.
+ *
+ * The switch is at `xl` (1280px), not `lg`, because `lg` is also where the 256px desktop rail appears:
+ * at 1024px that leaves 768px of content for tables that want ~1125px, so the table would scroll
+ * sideways exactly where the cards are the better answer. Landscape tablets land in this band.
+ */
+export function CardListView({ children, label }: { children: ReactNode; label?: string }) {
+  return <ul aria-label={label} className="divide-y divide-slate-100 xl:hidden">{children}</ul>;
+}
+
+export type RecordField = { label: string; value: ReactNode; wide?: boolean };
+
+/**
+ * One record as a card: a title (optionally a link), an optional subtitle and badge, then the remaining
+ * columns as a two-up definition list.
+ */
+export function RecordCard({ title, href, external = false, subtitle, badge, fields, action, children }: {
+  title: ReactNode; href?: string; external?: boolean; subtitle?: ReactNode; badge?: ReactNode;
+  fields?: RecordField[]; action?: ReactNode; children?: ReactNode;
+}) {
+  // `.row-title` grows to a 44px touch target on coarse pointers only (see globals.css).
+  const titleClass = 'row-title';
+  return (
+    <li className="p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          {href && external ? (
+            <a href={href} target="_blank" rel="noreferrer" className={titleClass}>{title}</a>
+          ) : href ? (
+            <Link href={href} className={titleClass}>{title}</Link>
+          ) : <p className="text-sm font-medium text-ink">{title}</p>}
+          {subtitle ? <p className="mt-0.5 text-xs text-ink-faint">{subtitle}</p> : null}
+        </div>
+        {badge ? <div className="shrink-0">{badge}</div> : null}
+      </div>
+      {fields?.length ? (
+        <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
+          {fields.map((f) => (
+            <div key={f.label} className={f.wide ? 'col-span-2' : undefined}>
+              <dt className="dt">{f.label}</dt>
+              <dd className="dd">{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
+      {children}
+      {action ? <div className="mt-3 flex [&>*]:flex-1">{action}</div> : null}
+    </li>
   );
 }
 

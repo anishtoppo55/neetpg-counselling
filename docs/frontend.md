@@ -73,22 +73,54 @@ submits immediately. The chosen order is part of the URL, and the card subtitle 
 * The table footer and the CSV header both state this is a personal research aid, **not an official MCC choice list**.
 * 422 responses from the API are rendered as a readable panel with the field and the allowed values, never a stack trace.
 
+## Phones and tablets
+
+Three decisions shape the small-screen layout.
+
+**Tables become cards below `xl`.** Each list page renders both a real `<table>` (`TableView`) and a stacked
+card list (`CardListView` + `RecordCard`), and CSS picks one; everything stays server-rendered. The switch is at
+1280px rather than 1024px because `lg` is also where the 256px desktop rail appears — at 1024px that leaves
+768px of content for tables that want ~1125px, so the table would scroll sideways exactly where cards are the
+better answer. Landscape tablets fall in that band. Scrolling a 7-column table on a 390px screen is worse than
+useless: the row label leaves the viewport before the numbers arrive, so the numbers lose their meaning.
+
+**Touch sizing keys on the pointer, not the width.** `@media (pointer: coarse)` in `globals.css` gives
+`.btn`, `.field`, `.check`, `.check-row`, `.nav-item`, `.summary-tap`, `.row-title` and `.link-tap` a 44px
+minimum (WCAG 2.5.5 / Apple HIG) and sets `.field` to 16px. A width breakpoint gets this wrong both ways: a
+tablet at 800px is still a thumb, a 500px-wide desktop window is not. The 16px matters specifically because
+iOS Safari zooms the viewport whenever a focused input's text is smaller, which left the user scrolled
+sideways with no obvious way back.
+
+**`viewport` sets no `maximumScale`.** Pinch-zoom is the main accessibility tool on a phone for dense data,
+and blocking it fails WCAG 1.4.4.
+
+Charts cannot use CSS breakpoints for axis widths, so `charts.tsx` reads `matchMedia` in a hook that starts
+`false`, which keeps SSR and hydration consistent and means a phone never briefly renders desktop sizing.
+Category axes drop from 150/170px to 88/96px with truncated tick labels.
+
+Verified with a headless-Chrome audit over 6 pages × 6 viewports (375, 412, 768, 1024, 1280, 1920) checking
+document overflow, tap targets under 44px (measuring the wrapping `<label>` for checkboxes, exempting
+`sr-only` helpers and inline prose links) and text under 12px. Result: no horizontal overflow and no
+undersized touch target at any size, confirmed against the deployed site as well as locally.
+
 ## Accessibility
 
 Checked on all pages: one `<h1>`, `lang="en"`, every control has a label, `<th scope="col">` on all table headers,
 no duplicate ids, no empty links, a skip-to-content link, `aria-current` on the active nav item, visible focus rings,
 and chance labels conveyed by text as well as colour. Charts are decorative duplicates of the table data; the
-underlying numbers are always available as text. Full WCAG compliance needs manual testing with assistive
-technology and an expert review.
+underlying numbers are always available as text. `prefers-reduced-motion` disables transitions. Full WCAG
+compliance needs manual testing with assistive technology and an expert review.
 
 ## Verified
 
 * All routes return 200 with real data; an unknown college id renders the 404 page.
 * Dashboard KPIs match the API exactly for the golden profile (2025, ST, AIR 30,000, AIQ, clinical MD/MS):
-  530 achievable, 170 Safe, 181 Good + Borderline, 179 Later-round.
+  530 achievable, 170 Safe, 181 Good + Borderline, 179 Later-round. The chance breakdown lists all 1,995
+  options (170 / 114 / 67 / 179 / 165 / 1,300) while the table total is 695 — the default filter keeps the four
+  achievable labels plus Reach, and drops Unlikely.
 * Table shows 25 rows per page; pagination reads "1–25 of 695 options" and page 2 "26–50 of 695".
-* CSV export contains 529 options plus a provenance header (year, quota, category, rank, rounds, eligible seat
-  categories, source, thresholds).
+* CSV export contains those 695 options plus a four-line provenance header (year, quota, category, rank,
+  rounds, eligible seat categories, source, thresholds) — 699 lines in total.
 * `tsc --noEmit`, `next lint` and `next build` are all clean.
 
 ## Not in this milestone
