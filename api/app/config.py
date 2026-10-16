@@ -8,8 +8,9 @@ CORS_ORIGINS = [o.strip() for o in os.environ.get('CORS_ORIGINS', 'http://localh
 POOL_MAX = int(os.environ.get('DB_POOL_MAX', '5'))
 
 # Shared secret. When set, every request except the health check must carry it as `X-API-Token`.
-# Needed when the API is reachable from the internet (e.g. the Render free tier, where a free service
-# cannot receive private-network requests). Empty locally, so development needs no header.
+# Unset in both the development stack and the current deployment, where the API is only reachable on the
+# Docker network and nothing outside the host can open a connection to it. Set it if you ever publish the
+# API directly - for example by enabling the /api/* route in deploy/Caddyfile.
 API_TOKEN = os.environ.get('API_TOKEN', '').strip()
 # Serve /docs, /redoc and /openapi.json without the token. Keep false on a public deployment.
 DOCS_PUBLIC = os.environ.get('DOCS_PUBLIC', 'true' if not API_TOKEN else 'false').lower() in ('1', 'true', 'yes')

@@ -1,4 +1,5 @@
-# Production image for the predictor API (used by Render; the local dev stack uses ./Dockerfile).
+# Production image for the predictor API, used by deploy/docker-compose.prod.yml.
+# The local development stack uses ./Dockerfile instead (live reload, source mounted).
 FROM python:3.12.7-slim
 
 ENV PYTHONUNBUFFERED=1 \
@@ -15,6 +16,6 @@ COPY app ./app
 RUN useradd --create-home --uid 1000 api
 USER api
 
-# Render injects PORT; default keeps `docker run` usable without it.
+# PORT is honoured if the runtime sets it; the default keeps `docker run` usable without it.
 # One worker: the free instance has limited memory, and the API is read-only and I/O bound.
 CMD ["sh", "-c", "exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1 --proxy-headers --forwarded-allow-ips='*'"]

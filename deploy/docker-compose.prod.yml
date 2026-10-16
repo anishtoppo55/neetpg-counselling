@@ -60,7 +60,7 @@ services:
     healthcheck:
       # Liveness only. /api/health answers 503 until the data is loaded, and the data can only be loaded
       # after the stack is running – using it here would deadlock the first deploy (the same trap that
-      # made the first Render deploy time out).
+      # cost the first deploy attempt a timeout).
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/live', timeout=3)\""]
       interval: 15s
       timeout: 5s

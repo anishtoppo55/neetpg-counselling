@@ -27,9 +27,10 @@ export function ApiErrorPanel({ error, title = 'That combination cannot be answe
       </Card>
     );
   }
-  // Tailor the hint: locally the API is probably not running; when hosted, the base URL is usually misconfigured.
+  // Tailor the hint: on the Docker network the API container is probably down; with an external base URL
+  // it is usually misconfigured or unreachable.
   const base = typeof window === 'undefined'
-    ? (process.env.API_BASE_INTERNAL ?? (process.env.API_HOST ? `https://${process.env.API_HOST}` : 'http://api:8000'))
+    ? (process.env.API_BASE_INTERNAL ?? 'http://api:8000')
     : PUBLIC_BASE;
   const isLocal = /localhost|127\.0\.0\.1|:\/\/api:/.test(base);
   return (
@@ -43,10 +44,10 @@ export function ApiErrorPanel({ error, title = 'That combination cannot be answe
           <>
             <p>The API did not respond at <code className="rounded bg-white/60 px-1">{base}</code>.</p>
             <ul className="mt-1 list-disc pl-5 text-xs opacity-90">
-              <li>Set <code className="rounded bg-white/60 px-1">API_BASE_INTERNAL</code> on this service to the
-                API&rsquo;s <strong>public</strong> URL (an internal hostname will not work on a free plan).</li>
-              <li>Check the API service is deployed and its <code className="rounded bg-white/60 px-1">/api/live</code> returns 200.</li>
-              <li>A free service sleeps after 15 minutes idle — the first request can take a minute.</li>
+              <li>Check <code className="rounded bg-white/60 px-1">API_BASE_INTERNAL</code> points at an address this
+                server can actually reach.</li>
+              <li>Check the API is running and its <code className="rounded bg-white/60 px-1">/api/live</code> returns 200.</li>
+              <li>If the API sits behind a proxy or firewall, confirm the route and port are open.</li>
             </ul>
           </>
         )}

@@ -25,7 +25,7 @@ how each milestone is judged done.
 | 3 | Frontend (profile form, results dashboard, detail pages) | 1 | ✅ Done |
 | 4 | Local shortlist and export | 1 | ⏳ Next (CSV export already shipped) |
 | 5 | Counselling Assistant (Gemini) | 2 | Later |
-| 6 | Hosting and user accounts | 2 | 🚧 Render free demo + Lightsail $7 VM done; accounts later |
+| 6 | Hosting and user accounts | 2 | 🚧 Deployed on AWS Lightsail; accounts later |
 | 7 | Expansion (more years, metadata, analyses) | 2+ | Later |
 
 Shortlist/export (originally milestone 5 in the plan) is moved into Phase 1 as milestone 4, kept local

@@ -47,8 +47,8 @@ async def require_api_token(request: Request, call_next):
 
 @app.api_route('/', methods=['GET', 'HEAD'])
 def root():
-    """Answers the platform's port probe without a token. Render probes with HEAD, which a GET-only route
-    would reject with 405, so both methods are registered."""
+    """Answers an unauthenticated port probe. Probes often use HEAD, which a GET-only route would reject
+    with 405, so both methods are registered."""
     return {'service': 'neetpg-api', 'docs': '/docs', 'health': '/api/health', 'live': '/api/live'}
 
 
@@ -56,8 +56,9 @@ def root():
 def live():
     """Liveness only – never touches the database.
 
-    This is the platform health-check path: a database outage (or the free-tier database expiring) must not
-    block a deploy. Readiness, including the database, is reported by /api/health.
+    This is the container health-check path. A database problem must not stop the container being
+    considered up, because the data is loaded *after* the stack starts - pointing a health check at
+    /api/health instead deadlocks the first deploy. Readiness, including the database, is /api/health.
     """
     return {'status': 'ok'}
 

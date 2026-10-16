@@ -40,7 +40,7 @@ removed. What one small VM buys instead:
 
 Caddy is the only container with published ports. Every page in the dashboard renders on the server, and
 no browser code calls the predictor API, so the API needs no public URL and therefore no `API_TOKEN` — the
-shared secret that the Render deployment depends on is simply unnecessary here.
+`API_TOKEN` shared secret, which a publicly reachable API would need, is simply unnecessary here.
 
 Files involved:
 
@@ -50,7 +50,7 @@ Files involved:
 | `deploy/Caddyfile` | TLS, security headers, reverse proxy to `web:3000` |
 | `deploy/env.prod.example` | template for `deploy/.env.prod` (hostname, TLS email, DB password) |
 | `deploy/lightsail.sh` | build, ship, start, load data, check |
-| `api/Dockerfile.prod`, `web/Dockerfile.prod` | the production images, shared with Render |
+| `api/Dockerfile.prod`, `web/Dockerfile.prod` | the production images (the plain `Dockerfile`s are for development) |
 
 **The images are built on your machine and shipped over SSH.** This is the one design decision that makes
 the $7 plan work: a Next.js production build needs well over 1 GB of memory and would be killed on the

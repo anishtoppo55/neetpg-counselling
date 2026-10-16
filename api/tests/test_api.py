@@ -32,7 +32,7 @@ def test_liveness_and_root_need_no_database_or_token(client, monkeypatch):
         r = client.get(path)
         assert r.status_code == 200, path
     assert client.get('/api/live').json() == {'status': 'ok'}
-    for path in ('/', '/api/live'):                    # Render probes with HEAD
+    for path in ('/', '/api/live'):                    # port probes often use HEAD
         assert client.request('HEAD', path).status_code == 200, path
 
 

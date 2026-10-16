@@ -1,4 +1,5 @@
-# Production image for the dashboard (used by Render; the local dev stack uses ./Dockerfile).
+# Production image for the dashboard, used by deploy/docker-compose.prod.yml.
+# The local development stack uses ./Dockerfile instead (live reload, source mounted).
 # Multi-stage: install -> build -> copy only the standalone server (~200 MB instead of ~1.4 GB).
 
 FROM node:20.18-slim AS deps
@@ -24,5 +25,5 @@ ENV NODE_ENV=production \
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 USER node
-# Render injects PORT; Next's standalone server reads it.
+# PORT is honoured if the runtime sets it; Next's standalone server reads it.
 CMD ["sh", "-c", "exec node server.js -p ${PORT:-3000}"]

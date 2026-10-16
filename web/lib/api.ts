@@ -4,12 +4,7 @@
  * Server components call the API over the Docker network (API_BASE_INTERNAL, e.g. http://api:8000);
  * anything running in the browser uses NEXT_PUBLIC_API_BASE (e.g. http://127.0.0.1:8000).
  */
-const serverBase = () => {
-  if (process.env.API_BASE_INTERNAL) return process.env.API_BASE_INTERNAL;
-  // Render blueprints can only inject a bare hostname, so accept that too
-  if (process.env.API_HOST) return `https://${process.env.API_HOST}`;
-  return 'http://api:8000';
-};
+const serverBase = () => process.env.API_BASE_INTERNAL ?? 'http://api:8000';
 export const PUBLIC_BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'http://127.0.0.1:8000';
 
 const base = () => (typeof window === 'undefined' ? serverBase() : PUBLIC_BASE);
