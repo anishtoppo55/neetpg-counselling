@@ -204,6 +204,13 @@ Postgres and the API are unreachable from outside the box, and everything is ser
 **user** authentication: anyone with the link sees the dashboard, and there is no rate limiting. Treat a shared
 URL as semi-private. Secrets live in `deploy/.env.prod` (git-ignored, mode 600) and in Render's own env vars.
 
+The hosted build loads **Google Analytics 4** (`NEXT_PUBLIC_GA_ID`, baked in at build time; set it to an empty
+string to switch analytics off). Worth knowing what that implies: GA records `page_location`, and on the
+predictor the URL carries the visitor's rank and category, so those values reach Google. The predictor still
+stores nothing server-side. The `/about` page states this plainly. To record paths without the query string,
+change the `gtag('config', …)` call in `web/app/layout.tsx` to
+`gtag('config', GA_ID, { page_location: location.origin + location.pathname })`.
+
 ## Layout
 
 ```text

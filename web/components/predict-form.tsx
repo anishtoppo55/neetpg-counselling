@@ -23,7 +23,7 @@ export function PredictForm({ q, meta, years, branches, states, yearInUse }: {
     <Card className="no-print">
       <CardHeader
         title={<span className="flex items-center gap-2"><IconTarget className="h-4 w-4 text-brand-600" /> Your profile</span>}
-        subtitle="Historical cut-offs are matched to this profile. Nothing is stored."
+        subtitle="Historical cut-offs are matched to this profile. No account, and it is never saved on the server."
         actions={<>
           <button type="submit" form="predict-form" className="btn-primary">Show my options</button>
           <a href="/" className="btn-ghost">Reset</a>

@@ -30,6 +30,26 @@ export default async function AboutPage() {
         </Notice>
 
         <Card>
+          <CardHeader title="Privacy" subtitle="What this site does and does not keep about you" />
+          <div className="card-pad space-y-2 text-sm text-ink-soft">
+            <p>
+              There are no accounts and no login. Your rank, category and filters are never written to the
+              database – they travel in the page URL, which is why a result is shareable and bookmarkable, and the
+              server answers each request without remembering it.
+            </p>
+            <p>
+              This site does use <strong className="text-ink">Google Analytics</strong> to count visits and see which
+              pages get used. Analytics sets cookies in your browser and sends Google the address of each page you
+              view. On the predictor that address includes your rank and category, because they are part of the URL.
+            </p>
+            <p>
+              To avoid that, use your browser&rsquo;s private window, an ad/tracker blocker, or the
+              &ldquo;Do Not Track&rdquo; / tracking-protection setting. Nothing on this site requires analytics to work.
+            </p>
+          </div>
+        </Card>
+
+        <Card>
           <CardHeader title="How a chance label is decided"
                       subtitle="The label compares the first considered round's closing rank with your rank" />
           <div className="card-pad space-y-3">

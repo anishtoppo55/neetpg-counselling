@@ -1,10 +1,23 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import { Sidebar } from '@/components/shell';
 import { getHealth, getYears } from '@/lib/api';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
+
+/**
+ * Google Analytics 4 measurement ID.
+ *
+ * Safe to keep in the repository: it is served in the page source of every visit, so it is public by
+ * design. `NEXT_PUBLIC_GA_ID` overrides it, and setting that to an empty string switches analytics off.
+ * It is read at build time, not run time, because NEXT_PUBLIC_ values are inlined into the client bundle.
+ *
+ * GA4's enhanced measurement counts page changes from History API events, which is how `next/link`
+ * navigates, so client-side route changes are recorded without a manual pageview call.
+ */
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? 'G-296WHDE2K7';
 
 export const metadata: Metadata = {
   title: 'NEET PG Counselling Intelligence',
@@ -48,6 +61,23 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Sidebar year={years[0] ?? 0} years={years} dataVersion={dataVersion} />
           <main id="main" className="min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-8">{children}</main>
         </div>
+
+        {/*
+          `next/script` rather than raw <script> tags: Next then owns the load order and keeps the
+          loader out of the critical path. `afterInteractive` runs it once hydration is done, which is
+          what Google's own snippet is for.
+        */}
+        {GA_ID ? (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+            <Script id="gtag-init" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${GA_ID}');`}
+            </Script>
+          </>
+        ) : null}
       </body>
     </html>
   );
