@@ -246,7 +246,26 @@ do_ship() {
 # ----------------------------------------------------------------- lifecycle
 do_up() {
   step 'Starting the stack'
+  # `--force-recreate api web`, not a plain `up -d`.
+  #
+  # A rebuilt image gets a new ID even when the source did not change, and `docker load` leaves the
+  # previous ID in place, still referenced by the running container. Compose did not always notice, so a
+  # container could keep serving the old image after a deploy claimed success - which would mean a real
+  # code change silently failing to roll out. Recreating the two application containers unconditionally
+  # costs a few seconds and removes the ambiguity. db and caddy are left alone so the database is not
+  # bounced and the TLS certificate cache is untouched.
+  # `--no-deps` keeps db and caddy out of it, so the two are recreated in order: api first, then web
+  # once the API is answering, rather than both at once with web briefly pointing at nothing.
   rdc 'up -d --remove-orphans' | sed 's/^/    /'
+  rdc 'up -d --force-recreate --no-deps api' | sed 's/^/    /'
+  local waited=0
+  printf '    waiting for the API '
+  while (( waited < 90 )); do
+    [[ "$(rdc 'ps --format "{{.Service}} {{.Health}}"' 2>/dev/null | awk '$1=="api"{print $2}')" == healthy ]] && break
+    printf '.'; sleep 3; waited=$((waited + 3))
+  done
+  printf '\n'
+  rdc 'up -d --force-recreate --no-deps web' | sed 's/^/    /'
   info 'waiting for the containers to report healthy…'
   local waited=0 state
   while (( waited < 180 )); do
@@ -256,6 +275,14 @@ do_up() {
   done
   printf '\n'
   rdc 'ps' | sed 's/^/    /'
+
+  # Each deploy replaces a tag and leaves the previous image untagged. They are ~60 MB a pair and were
+  # accumulating silently on a 40 GB disk. `prune -f` only removes dangling images, never a tagged one
+  # or anything a container references, so the running stack and the rollback tags are untouched.
+  local reclaimed
+  reclaimed=$(remote 'docker image prune -f' 2>/dev/null | grep -i 'reclaimed' || true)
+  [[ -n "$reclaimed" ]] && info "cleaned up old image layers – ${reclaimed#*: }"
+
   info "Caddy needs up to a minute to obtain the first certificate for ${SITE_HOST}."
 }
 
