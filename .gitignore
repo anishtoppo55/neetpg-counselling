@@ -17,6 +17,15 @@ deploy/.deploy-target
 id_rsa*
 id_ed25519*
 
+# cloud service-account files, which are ordinary-looking JSON and easy to drop in by mistake
+*credentials*.json
+*service-account*.json
+*serviceaccount*.json
+*-key.json
+gha-creds-*.json
+.aws/
+.gcloud/
+
 # ---------------------------------------------------------------- build and cache
 __pycache__/
 *.pyc
