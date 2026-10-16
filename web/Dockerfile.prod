@@ -5,8 +5,11 @@
 FROM node:20.18-slim AS deps
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
-COPY package.json package-lock.json* ./
-RUN npm install --no-audit --no-fund
+# `npm ci` rather than `npm install`, and the lockfile is required rather than optional: this image is
+# what gets deployed, so the dependency tree must be the one that was tested. Direct dependencies are
+# already pinned in package.json; the lockfile is what pins the 400-odd transitive ones.
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 
 FROM node:20.18-slim AS build
 WORKDIR /app
