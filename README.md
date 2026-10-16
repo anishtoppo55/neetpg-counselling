@@ -10,9 +10,12 @@ Self-hosted on a single AWS Lightsail instance. No sign-up, works on phones, and
 
 Everything here is **historical evidence, not a prediction**. Cut-offs, seat matrices and rules change every year.
 
-* Product plan: `neet_pg_counselling_platform_plan.md`
-* Progress and decisions: `MILESTONES.md`
-* Deployment guide: `docs/deploy-lightsail.md`
+| Documentation | |
+|---|---|
+| [`docs/data_model.md`](docs/data_model.md) | Tables, the PDF parsing approach, validation, limitations, adding a year |
+| [`docs/api.md`](docs/api.md) | Endpoints, classification rules, verification |
+| [`docs/frontend.md`](docs/frontend.md) | Pages, URL state, responsive behaviour, accessibility |
+| [`docs/deploy-lightsail.md`](docs/deploy-lightsail.md) | Deploying the stack to a $7/month VM with HTTPS |
 
 ## Status
 
