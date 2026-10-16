@@ -3,17 +3,17 @@
 A single Lightsail instance running the whole stack with `docker compose`, behind Caddy for free
 automatic HTTPS, on a free DuckDNS hostname. Budget: **$7/month**, no domain name needed.
 
-This replaces the Render free-tier demo ([docs/deploy-render.md](deploy-render.md)), which expires 30 days
-after the database is created and sleeps after 15 minutes idle.
+This is the deployment path for the project. It replaced an earlier free-tier PaaS demo, whose managed database
+was deleted 30 days after creation and whose services slept after 15 minutes idle; that blueprint has been
+removed. What one small VM buys instead:
 
-| | Render free tier | Lightsail $7 instance |
+| | Free-tier PaaS | Lightsail $7 instance |
 | --- | --- | --- |
 | Database | 1 GB, deleted after 30 days | 40 GB disk, yours |
 | Sleeping | after 15 min idle, ~1 min cold start | never |
-| Public URL | `*.onrender.com` | `*.duckdns.org` (free) |
-| API exposure | public, protected by a shared secret | private, Docker network only |
+| API exposure | public, needs a shared secret | private, Docker network only |
 | Cost | $0 | $7/month |
-| Who operates it | Render | you (patching, backups) |
+| Who operates it | the platform | you (patching, backups) |
 
 ---
 

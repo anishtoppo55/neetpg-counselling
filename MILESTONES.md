@@ -238,7 +238,8 @@ short `docs/data_model.md`.
 
 **Goal:** make the platform available beyond one machine.
 
-**Done – free-tier demo on Render** (`render.yaml`, `docs/deploy-render.md`)
+**Superseded – free-tier demo on Render** (`render.yaml` and `docs/deploy-render.md`, both since removed from
+the repository; kept here as a record of what was tried and why it was dropped)
 * Production images: `api/Dockerfile.prod` (uvicorn on `$PORT`, single worker, 267 MB) and
   `web/Dockerfile.prod` (multi-stage Next.js standalone, 321 MB vs 1.38 GB for the dev image).
 * Blueprint creates free Postgres 16 + API + dashboard, wires `DATABASE_URL`, generates `API_TOKEN` once and

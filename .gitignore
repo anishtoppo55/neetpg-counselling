@@ -1,17 +1,41 @@
+# ---------------------------------------------------------------- secrets
+# This repository is public. Credentials are excluded by pattern rather than by name, so a new file
+# (.env.local, a cloud key downloaded to the repo root) cannot be committed by accident.
 .env
-deploy/.env.prod
+.env.*
+!.env.example
 deploy/.deploy-target
+
+# private keys and certificate material, in every common flavour
 *.pem
-data/cache/
-data/reports/
+*.key
+*.p12
+*.pfx
+*.ppk
+*.jks
+*.keystore
+id_rsa*
+id_ed25519*
+
+# ---------------------------------------------------------------- build and cache
 __pycache__/
 *.pyc
 .pytest_cache/
 node_modules/
 .next/
+*.tsbuildinfo
 .scratch/
+
+# ---------------------------------------------------------------- generated data
+data/cache/
+data/reports/
+
+# database dumps: these contain the full dataset and are produced by `lightsail.sh data`.
+# NOT a blanket *.sql rule - pipeline/migrations/*.sql is source and must stay tracked.
+*.sql.gz
+*.dump
+neetpg-backup*
 
 # official source PDFs: ~150 MB, re-downloadable with scripts/fetch_mcc_documents.py
 # (manifest.csv is kept, so provenance stays in git)
 data/raw/**/*.pdf
-*.tsbuildinfo
