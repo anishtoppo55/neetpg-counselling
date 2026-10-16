@@ -1,16 +1,22 @@
 # NEET PG Counselling Intelligence Platform
 
-A local web app that turns the official MCC seat-allotment PDFs into a **college predictor**: enter a rank and
+A web app that turns the official MCC seat-allotment PDFs into a **college predictor**: enter a rank and
 category, and see which college × course options were historically within reach, with the evidence behind each one.
+
+### ▶ Live: **https://ncounselling.duckdns.org**
+
+Self-hosted on a single AWS Lightsail instance. No sign-up, works on phones, and every result is a shareable URL:
+[2025, ST, AIR 30,000, AIQ, clinical MD/MS](https://ncounselling.duckdns.org/?rank=30000&category=ST&quota=AI&year=2025&groups=Clinical&degrees=MD%2FMS).
 
 Everything here is **historical evidence, not a prediction**. Cut-offs, seat matrices and rules change every year.
 
 * Product plan: `neet_pg_counselling_platform_plan.md`
 * Progress and decisions: `MILESTONES.md`
+* Deployment guide: `docs/deploy-lightsail.md`
 
 ## Status
 
-Phase 1 (MVP) is the predictor; the Gemini assistant, hosting and accounts come in Phase 2.
+Phase 1 (MVP) is the predictor, and it is deployed. The Gemini assistant and user accounts come in Phase 2.
 
 | # | Milestone | State |
 |---|---|---|
@@ -19,7 +25,7 @@ Phase 1 (MVP) is the predictor; the Gemini assistant, hosting and accounts come 
 | 2 | Predictor API – FastAPI, classification, lookups | ✅ |
 | 3 | Frontend – Next.js dashboard, colleges, cut-offs, branches | ✅ |
 | 4 | Saved shortlist with reordering (CSV export already works) | next |
-| 6 | Hosting – Render free demo (`docs/deploy-render.md`), AWS Lightsail $7 VM (`docs/deploy-lightsail.md`) | ✅ two paths |
+| 6 | Hosting – AWS Lightsail, HTTPS, live at [ncounselling.duckdns.org](https://ncounselling.duckdns.org) | ✅ deployed |
 | 5, 7 | Counselling assistant (Gemini), accounts, more years | later |
 
 One open item: the category-eligibility rules in `pipeline/rules/eligibility.yaml` are drafted from the MCC
@@ -46,7 +52,7 @@ First run takes a few minutes (image build plus ~35 s per year); later runs abou
 | Command | What it does |
 |---|---|
 | `./start.sh` | Bring everything up: db → migrate → import → api → web |
-| `./start.sh --tests` | Same, plus both test suites (40 pipeline + 36 API) |
+| `./start.sh --tests` | Same, plus both test suites (40 pipeline + 52 API) |
 | `./start.sh --status` | What is running, and which years and tables are loaded |
 | `./start.sh --logs web` | Follow logs (`db`, `api`, `web`, or all) |
 | `./start.sh --stop` | Stop the containers, keep the data |
@@ -150,9 +156,11 @@ explanation — their cut-offs remain browsable.
 * The database and API reproduce the independent analysis notebook. For 2025, ST, AIR 30,000, AIQ, clinical MD/MS:
   **520 options — 170 Safe, 114 Good, 67 Borderline, 169 Later-round**; ST AIQ seats 842 / 703 / 688 across rounds
   with median ranks 40,570.5 / 52,465 / 69,040.5.
-* 76 automated tests (40 pipeline, 36 API) including that golden case, threshold boundaries, error handling and a
-  p95 latency limit. API p95 is 0.20 s locally.
-* `tsc`, `next lint` and `next build` are clean; every page passes a basic accessibility pass.
+* 92 automated tests (40 pipeline, 52 API) including that golden case, threshold boundaries, error handling and a
+  p95 latency limit. Measured `/api/predict` p95 is 0.12 s locally (median 0.10 s over 12 runs).
+* The deployed site reproduces the same figures exactly, checked against the live instance.
+* `tsc`, `next lint` and `next build` are clean. Layout is verified by a headless-Chrome audit over 6 pages ×
+  6 viewports (375 → 1920 px) for horizontal overflow, 44 px touch targets and text size.
 
 ## Known gaps
 
@@ -167,19 +175,18 @@ explanation — their cut-offs remain browsable.
 
 ## Hosting
 
-Both paths share the production images `api/Dockerfile.prod` and `web/Dockerfile.prod` (the plain `Dockerfile`s
-stay for local development). Neither has any user authentication — anyone with the link sees the dashboard.
+Live at **https://ncounselling.duckdns.org**, on one **AWS Lightsail** instance for **$7/month**
+(1 GB RAM, 2 vCPU, 40 GB SSD, Mumbai).
 
-**Render free tier** — `render.yaml`, a blueprint creating free Postgres + API + dashboard. Costs nothing, but the
-free database is deleted 30 days after creation and services sleep after 15 minutes idle (~1 min cold start).
-A free Render service cannot *receive* private-network requests, so the API gets a public URL protected by a
-generated `API_TOKEN` shared with the dashboard. Walk-through: **`docs/deploy-render.md`**.
+`deploy/docker-compose.prod.yml` runs four containers — Postgres, the API, the dashboard, and Caddy, which
+terminates HTTPS with a free Let's Encrypt certificate on a free DuckDNS hostname, so no domain name is needed.
+Caddy is the only container that publishes ports, so the database and the API are unreachable from the internet
+and need no shared secret. The production images are `api/Dockerfile.prod` and `web/Dockerfile.prod`; the plain
+`Dockerfile`s stay for local development.
 
-**AWS Lightsail, $7/month** — one 1 GB instance running `deploy/docker-compose.prod.yml`: Postgres, the API, the
-dashboard and Caddy, which terminates HTTPS with a free Let's Encrypt certificate on a free DuckDNS hostname (no
-domain needed). Caddy is the only container with published ports, so the database and the API stay private and the
-shared secret is unnecessary. Nothing is ever built on the instance — `deploy/lightsail.sh` builds the images here
-and ships them over SSH, which is what keeps a 1 GB box viable:
+Nothing is ever built on the instance. `deploy/lightsail.sh` builds the images here and ships them over SSH
+(~140 MB), which is what keeps a 1 GB box viable — a Next.js production build needs far more memory than that
+and would be killed:
 
 ```bash
 cp deploy/env.prod.example deploy/.env.prod   # set SITE_HOST, TLS_EMAIL, POSTGRES_PASSWORD
@@ -189,8 +196,10 @@ cp deploy/env.prod.example deploy/.env.prod   # set SITE_HOST, TLS_EMAIL, POSTGR
 ./deploy/lightsail.sh data                    # pg_dump the local database into the instance
 ```
 
-Measured footprint of the running stack: 289 MiB across the four containers. Walk-through, including the console
-click-path, firewall rules, backups and troubleshooting: **`docs/deploy-lightsail.md`**.
+Measured footprint on the instance: **263 MiB** across the four containers (web 104, db 79, api 59, caddy 21),
+roughly 615 MB of the 909 MB in use overall. `./deploy/lightsail.sh status | logs web | check | ssh` handle
+day-to-day operation. Walk-through, including the console click-path, firewall rules, backups, costs and
+troubleshooting: **`docs/deploy-lightsail.md`**.
 
 ## Security
 
@@ -198,13 +207,14 @@ Running locally is the default and is local only. The database (`5432`), API (`8
 The API has no authentication and uses read-only database sessions; the web app has no login and stores nothing.
 Do not expose these ports on a network. `.env` holds the database password and is git-ignored.
 
-The hosted deployments narrow that surface rather than closing it. On Lightsail only Caddy publishes ports, so
-Postgres and the API are unreachable from outside the box, and everything is served over HTTPS with HSTS and
-`X-Robots-Tag: noindex`. On Render the API is public and refuses any request without `X-API-Token`. Neither has
-**user** authentication: anyone with the link sees the dashboard, and there is no rate limiting. Treat a shared
-URL as semi-private. Secrets live in `deploy/.env.prod` (git-ignored, mode 600) and in Render's own env vars.
+The deployment narrows that surface rather than closing it. Only Caddy publishes ports, so Postgres and the API
+are unreachable from outside the box (verified: 5432, 8000, 3000 and Caddy's admin 2019 all refuse connections
+from the internet), everything is served over HTTPS with HSTS and `X-Robots-Tag: noindex`, and SSH is restricted
+to one address. There is still no **user** authentication: anyone with the link sees the dashboard, and there is
+no rate limiting — treat a shared URL as semi-private. Secrets live only in `deploy/.env.prod` locally
+(git-ignored) and `~/neetpg/.env` on the instance (mode 600).
 
-The hosted build loads **Google Analytics 4** (`NEXT_PUBLIC_GA_ID`, baked in at build time; set it to an empty
+The build loads **Google Analytics 4** (`NEXT_PUBLIC_GA_ID`, baked in at build time; set it to an empty
 string to switch analytics off). Worth knowing what that implies: GA records `page_location`, and on the
 predictor the URL carries the visitor's rank and category, so those values reach Google. The predictor still
 stores nothing server-side. The `/about` page states this plainly. To record paths without the query string,
@@ -234,9 +244,7 @@ counselling_platform/
   docs/data_model.md                                                 tables, validation, limitations, adding a year
   docs/api.md                                                        endpoints, classification rules, verification
   docs/frontend.md                                                   pages, design, URL state, accessibility
-  docs/deploy-render.md                                              free-tier demo deployment
   docs/deploy-lightsail.md                                           $7/month single-VM deployment
-  render.yaml                                                        Render Blueprint (db + api + web)
   deploy/
     docker-compose.prod.yml, Caddyfile                               production stack behind automatic HTTPS
     env.prod.example                                                 template for deploy/.env.prod
